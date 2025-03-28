@@ -1,0 +1,237 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f8fa;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+#setup-container,
+#login-container,
+#app-container {
+    display: none;
+}
+
+.tweet {
+    border-bottom: 1px solid #e6ecf0;
+    padding: 15px 0;
+}
+
+.tweet-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.tweet-user {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.tweet-time {
+    color: #657786;
+    font-size: 0.9em;
+}
+
+.tweet-content {
+    margin: 5px 0;
+}
+
+.tweet-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.delete-tweet-button {
+    background-color: rgba(224, 36, 94, 0.1);
+    color: #e0245e;
+    border: 1px solid rgba(224, 36, 94, 0.3);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+
+.delete-tweet-button:hover {
+    background-color: rgba(224, 36, 94, 0.2);
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cfd9de;
+    border-radius: 10px;
+    resize: none;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #1da1f2;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #1a91da;
+}
+
+.danger-button {
+    background-color: #e0245e;
+}
+
+.danger-button:hover {
+    background-color: #c01e4e;
+}
+
+.peer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f7f9fa;
+    border-radius: 5px;
+    cursor: default;
+}
+
+#peers-list {
+    margin-top: 15px;
+}
+
+.peer:hover {
+    background-color: #edf0f2;
+}
+
+#qrcode,
+.profile-qrcode {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.profile-info {
+    background-color: #f7f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.profile-actions {
+    margin-top: 30px;
+}
+
+#tweet-form {
+    margin-bottom: 20px;
+}
+
+.tab-container {
+    display: flex;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e6ecf0;
+}
+
+.tab {
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.tab.active {
+    border-bottom: 2px solid #1da1f2;
+    color: #1da1f2;
+    font-weight: bold;
+}
+
+#connect-form {
+    margin: 20px 0;
+}
+
+#status {
+    color: #657786;
+    margin: 10px 0;
+}
+
+.timeout {
+    background-color: #95a5a6;
+}
+
+/* Gray color for timeout status */
+
+.connection-quality {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+#connection-quality.unknown {
+    background-color: #ccc;
+}
+
+#connection-quality.good {
+    background-color: #2ecc71;
+}
+
+#connection-quality.medium {
+    background-color: #f1c40f;
+}
+
+#connection-quality.poor {
+    background-color: #f39c12;
+}
+
+#connection-quality.offline {
+    background-color: #e74c3c;
+}
+
+#connection-quality.error {
+    background-color: #9b59b6;
+}
+
+.small-button {
+    background-color: #1da1f2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.8em;
+    cursor: pointer;
+    display: inline-block;
+    margin-left: 8px;
+}
+
+.peer-name {
+    font-weight: bold;
+}
+
+.peer-status {
+    margin-top: 3px;
+}
+
+.peer-last-seen {
+    margin-top: 2px;
+}
+
+.peer-item {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+    padding: 5px;
+    border-bottom: 1px solid #eee;
+  }
