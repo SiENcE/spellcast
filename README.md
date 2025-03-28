@@ -2,7 +2,7 @@
 
 SpellCast is a fully decentralized, peer-to-peer Twitter-like application that runs entirely in your web browser. Share messages (called "spells") directly with your connections without relying on any central servers. Your data stays with you!
 
-![SpellCast Logo](https://example.com/spellcast-logo.png)
+![SpellCast Logo](docs/spellcast-p2p-visualization.svg)
 
 ## Key Features
 

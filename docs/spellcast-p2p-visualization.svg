@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f8f9fa" />
+  
+  <!-- Title -->
+  <text x="400" y="40" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold">SpellCast P2P Network</text>
+  <text x="400" y="70" font-family="Arial" font-size="16" text-anchor="middle" font-style="italic">How messages propagate between multiple peers</text>
+  
+  <!-- Network Diagram -->
+  <!-- Peer A (Central) -->
+  <circle cx="400" cy="250" r="50" fill="#1da1f2" />
+  <text x="400" y="250" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Alice</text>
+  <text x="400" y="270" font-family="Arial" font-size="12" text-anchor="middle" fill="white">Peer A</text>
+  
+  <!-- Peer B -->
+  <circle cx="200" cy="150" r="50" fill="#794bc4" />
+  <text x="200" y="150" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Bob</text>
+  <text x="200" y="170" font-family="Arial" font-size="12" text-anchor="middle" fill="white">Peer B</text>
+  
+  <!-- Peer C -->
+  <circle cx="600" cy="150" r="50" fill="#794bc4" />
+  <text x="600" y="150" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Carol</text>
+  <text x="600" y="170" font-family="Arial" font-size="12" text-anchor="middle" fill="white">Peer C</text>
+  
+  <!-- Peer D -->
+  <circle cx="250" cy="400" r="50" fill="#794bc4" />
+  <text x="250" y="400" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Dave</text>
+  <text x="250" y="420" font-family="Arial" font-size="12" text-anchor="middle" fill="white">Peer D</text>
+  
+  <!-- Peer E -->
+  <circle cx="550" cy="400" r="50" fill="#794bc4" />
+  <text x="550" y="400" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Eve</text>
+  <text x="550" y="420" font-family="Arial" font-size="12" text-anchor="middle" fill="white">Peer E</text>
+
+  <!-- Connections -->
+  <!-- Active connections are solid lines -->
+  <line x1="400" y1="250" x2="200" y2="150" stroke="#333" stroke-width="3" />
+  <line x1="400" y1="250" x2="600" y2="150" stroke="#333" stroke-width="3" />
+  <line x1="400" y1="250" x2="250" y2="400" stroke="#333" stroke-width="3" />
+  <line x1="400" y1="250" x2="550" y2="400" stroke="#333" stroke-width="3" />
+  
+  <!-- Not all peers are connected to each other -->
+  <line x1="200" y1="150" x2="250" y2="400" stroke="#333" stroke-width="3" stroke-dasharray="5,5" />
+  <line x1="600" y1="150" x2="550" y2="400" stroke="#333" stroke-width="3" stroke-dasharray="5,5" />
+  
+  <!-- Message Broadcast Animation -->
+  <!-- Message from Alice (Peer A) spreading to all connected peers -->
+  <circle cx="400" cy="250" r="10" fill="#ff5252">
+    <animate attributeName="r" values="10;60;10" dur="3s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="1;0.2;1" dur="3s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Message reaching Bob (Peer B) -->
+  <circle cx="200" cy="150" r="0" fill="#ff5252">
+    <animate attributeName="r" values="0;15;0" dur="3s" begin="0.5s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0;1;0" dur="3s" begin="0.5s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Message reaching Carol (Peer C) -->
+  <circle cx="600" cy="150" r="0" fill="#ff5252">
+    <animate attributeName="r" values="0;15;0" dur="3s" begin="0.6s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0;1;0" dur="3s" begin="0.6s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Message reaching Dave (Peer D) -->
+  <circle cx="250" cy="400" r="0" fill="#ff5252">
+    <animate attributeName="r" values="0;15;0" dur="3s" begin="0.7s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0;1;0" dur="3s" begin="0.7s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Message reaching Eve (Peer E) -->
+  <circle cx="550" cy="400" r="0" fill="#ff5252">
+    <animate attributeName="r" values="0;15;0" dur="3s" begin="0.8s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0;1;0" dur="3s" begin="0.8s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Secondary message propagation (from Bob to Dave) -->
+  <circle cx="225" cy="275" r="0" fill="#ff5252">
+    <animate attributeName="r" values="0;10;0" dur="3s" begin="1.2s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0;0.8;0" dur="3s" begin="1.2s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Secondary message propagation (from Carol to Eve) -->
+  <circle cx="575" cy="275" r="0" fill="#ff5252">
+    <animate attributeName="r" values="0;10;0" dur="3s" begin="1.3s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0;0.8;0" dur="3s" begin="1.3s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Local Storage for Each Peer -->
+  <!-- Alice's storage -->
+  <rect x="350" y="320" width="100" height="40" rx="5" fill="#fff" stroke="#333" stroke-width="2" />
+  <text x="400" y="345" font-family="Arial" font-size="12" text-anchor="middle">Local Storage</text>
+  
+  <!-- Bob's storage -->
+  <rect x="150" y="220" width="100" height="40" rx="5" fill="#fff" stroke="#333" stroke-width="2" />
+  <text x="200" y="245" font-family="Arial" font-size="12" text-anchor="middle">Local Storage</text>
+  
+  <!-- Carol's storage -->
+  <rect x="550" y="220" width="100" height="40" rx="5" fill="#fff" stroke="#333" stroke-width="2" />
+  <text x="600" y="245" font-family="Arial" font-size="12" text-anchor="middle">Local Storage</text>
+  
+  <!-- Dave's storage -->
+  <rect x="200" y="470" width="100" height="40" rx="5" fill="#fff" stroke="#333" stroke-width="2" />
+  <text x="250" y="495" font-family="Arial" font-size="12" text-anchor="middle">Local Storage</text>
+  
+  <!-- Eve's storage -->
+  <rect x="500" y="470" width="100" height="40" rx="5" fill="#fff" stroke="#333" stroke-width="2" />
+  <text x="550" y="495" font-family="Arial" font-size="12" text-anchor="middle">Local Storage</text>
+  
+  <!-- Legend -->
+  <rect x="100" y="500" width="20" height="20" fill="#1da1f2" />
+  <text x="130" y="515" font-family="Arial" font-size="14" text-anchor="start">Peer sending message</text>
+  
+  <rect x="100" y="530" width="20" height="20" fill="#794bc4" />
+  <text x="130" y="545" font-family="Arial" font-size="14" text-anchor="start">Connected peer</text>
+  
+  <line x1="300" y1="510" x2="340" y2="510" stroke="#333" stroke-width="3" />
+  <text x="350" y="515" font-family="Arial" font-size="14" text-anchor="start">Direct connection</text>
+  
+  <line x1="300" y1="540" x2="340" y2="540" stroke="#333" stroke-width="3" stroke-dasharray="5,5" />
+  <text x="350" y="545" font-family="Arial" font-size="14" text-anchor="start">Indirect connection</text>
+  
+  <circle cx="510" cy="510" r="10" fill="#ff5252" />
+  <text x="530" y="515" font-family="Arial" font-size="14" text-anchor="start">Message propagation</text>
+  
+  <rect x="490" y="530" width="20" height="20" fill="#fff" stroke="#333" stroke-width="2" />
+  <text x="530" y="545" font-family="Arial" font-size="14" text-anchor="start">Local storage</text>
+  
+  <!-- Message Flow Description -->
+  <text x="400" y="570" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Each peer stores messages locally and forwards to connected peers</text>
+</svg>
