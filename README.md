@@ -1,6 +1,6 @@
 # SpellCast - Decentralized P2P Messaging
 
-SpellCast is a fully decentralized, peer-to-peer Twitter-like application that runs entirely in your web browser. Share messages (called "spells") directly with your connections without relying on any central servers. Your data stays with you!
+**SpellCast is a PROTOTYPE** of a fully decentralized, peer-to-peer Twitter-like application that runs entirely in your web browser. Share messages (called "spells") directly with your connections without relying on any central servers. Your data stays with you!
 
 ![SpellCast Logo](docs/spellcast-p2p-visualization.svg)
 
@@ -148,7 +148,7 @@ The application is structured into several manager classes:
 - **TweetManager**: Handles message creation, storage, and distribution
 - **UIManager**: Controls the user interface and event handling
 - **StorageManager**: Manages persistent storage with IndexedDB
-- **MediaManager**: Processes and stores image attachments
+- **MediaManager**: -- unused, unfinished!! --
 - **RateLimiter**: Prevents spam and abuse
 
 ### P2P Message Distribution System
@@ -185,7 +185,7 @@ SpellCast relies on WebRTC's built-in security features:
    - Communication is encrypted end-to-end between directly connected peers
    - Intermediary peers cannot read messages they relay if implemented correctly
 
-Remember that while the transport is secure, the application itself doesn't implement additional encryption layers. For more security, you could add end-to-end encryption at the message level.
+**Remember that while the transport is secure, the application itself doesn't implement additional encryption layers. For more security, you could add end-to-end encryption at the message level.**
 
 ### Storage Architecture
 
