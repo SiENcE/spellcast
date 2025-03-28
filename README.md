@@ -7,12 +7,41 @@ SpellCast is a fully decentralized, peer-to-peer Twitter-like application that r
 ## Key Features
 
 - **Fully Decentralized**: No central servers or databases - everything happens directly between peers
-- **Private & Secure**: Your messages are only shared with the peers you connect to
+- **Private & Secure**: WebRTC's built-in encryption secures all peer connections
 - **Browser-Based**: Runs entirely in your web browser - no installation required
+- **Cross-Platform**: Works on desktop and mobile browsers (iOS, Android, iPad)
 - **Persistent Storage**: Messages and connections are saved in your browser's storage
-- **Media Support**: Share images along with your messages
 - **Offline Capable**: Create messages offline and they'll be sent when you reconnect
 - **QR Code Sharing**: Connect with peers easily by scanning QR codes
+
+## Security & Privacy
+
+### Encrypted Communications
+
+SpellCast leverages WebRTC's built-in security mechanisms to protect your communications:
+
+- **DTLS (Datagram Transport Layer Security)**: All data channels between peers are encrypted using DTLS, similar to HTTPS encryption for websites
+- **Peer Authentication**: During connection establishment, peers are authenticated to prevent man-in-the-middle attacks
+- **No Central Points of Compromise**: Without central servers storing messages, there are no honeypots for attackers to target
+- **Private Connection Model**: Messages only reach users you've directly or indirectly connected with
+
+### Privacy Benefits
+
+- **No Account Required**: Create an identity without providing email or phone number
+- **No Tracking**: No central entity to track your connections or message content
+- **Local Storage Only**: Your data is stored exclusively in your browser's local storage
+- **Selective Sharing**: Messages only propagate to peers in your network
+
+## Mobile Compatibility
+
+SpellCast works on all modern mobile browsers:
+
+- **iOS (iPhone & iPad)**: Works in Safari, Chrome, and Firefox
+- **Android**: Compatible with Chrome, Firefox, and Samsung Internet
+- **Responsive Design**: UI adapts to different screen sizes
+- **Connection Persistence**: Reconnects automatically when switching networks
+
+Note that on iOS, background tabs may disconnect due to browser limitations, but will reconnect when you return to the tab.
 
 ## Getting Started
 
@@ -20,11 +49,11 @@ SpellCast is a fully decentralized, peer-to-peer Twitter-like application that r
 
 1. Clone this repository or download the files
    ```
-   git clone https://github.com/yourusername/spellcast.git
+   git clone https://github.com/SiENcE/spellcast.git
    ```
 
 2. Open the `index.html` file in a modern web browser
-   - For best results, use Chrome, Firefox, or Edge
+   - For best results, use Chrome, Firefox, Edge, or Safari
    - You can use a local server if you prefer:
      ```
      # Using Python
@@ -67,9 +96,8 @@ SpellCast automatically saves your connections and will try to reconnect to know
 ### Casting Spells (Sending Messages)
 
 1. In the "Feed" tab, type your message in the text area
-2. (Optional) Click the camera icon to attach an image
-3. Click "Cast" to send your message
-4. Your message will be sent to all connected peers and displayed in your feed
+2. Click "Cast" to send your message
+3. Your message will be sent to all connected peers and displayed in your feed
 
 ### Managing Your Connections
 
@@ -85,6 +113,20 @@ SpellCast automatically saves your connections and will try to reconnect to know
 3. Share your peer ID or QR code with others to connect
 4. Use the "Delete All Messages" button to clear your local message history
 5. Use the "Delete Account" button to completely reset your account
+
+## How Multi-Peer Networking Works
+
+SpellCast creates a mesh network where:
+
+1. **Direct Connections**: You establish WebRTC connections with peers you know
+2. **Message Propagation**: When you send a message:
+   - It's stored in your local browser storage
+   - It's sent to all your directly connected peers
+   - They store it and forward it to their peers (who aren't already connected to you)
+   - The system tracks which peers have received each message to prevent duplicates
+3. **Offline Handling**: If a peer is offline, messages for them are queued and sent when they reconnect
+
+This distributed approach means there's no central point of failure, and messages can still reach their destination through alternative paths in the network.
 
 ## For Developers
 
@@ -133,6 +175,18 @@ SpellCast uses a sophisticated message distribution system:
 }
 ```
 
+### WebRTC Encryption
+
+SpellCast relies on WebRTC's built-in security features:
+
+1. **DTLS Encryption**: All data channels are encrypted using Datagram Transport Layer Security
+2. **Connection Security**:
+   - Each connection begins with a secure handshake
+   - Communication is encrypted end-to-end between directly connected peers
+   - Intermediary peers cannot read messages they relay if implemented correctly
+
+Remember that while the transport is secure, the application itself doesn't implement additional encryption layers. For more security, you could add end-to-end encryption at the message level.
+
 ### Storage Architecture
 
 SpellCast uses IndexedDB for persistent storage with a fallback to localStorage:
@@ -142,15 +196,6 @@ SpellCast uses IndexedDB for persistent storage with a fallback to localStorage:
 - **Media**: Images attached to messages (stored as base64 data)
 - **Peers**: Known connections and their status
 - **Distribution state**: Which peers have received which messages
-
-### Media Handling
-
-The `MediaManager` class handles all aspects of media processing:
-
-1. Images are resized to reasonable dimensions
-2. Thumbnails are generated for feed display
-3. Full-size images are stored for viewing on click
-4. Orphaned media (from deleted messages) is cleaned up periodically
 
 ### Connection Quality Monitoring
 
@@ -174,7 +219,7 @@ We welcome contributions to SpellCast! Here's how you can help:
 
 1. Clone the repository
    ```
-   git clone https://github.com/yourusername/spellcast.git
+   git clone https://github.com/SiENcE/spellcast.git
    ```
 
 2. Set up a local development server
@@ -201,6 +246,10 @@ We welcome contributions to SpellCast! Here's how you can help:
 ## License
 
 See the LICENSE file for details.
+
+## Author
+
+FFDabei - aka SiENcE
 
 ## Acknowledgments
 
