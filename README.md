@@ -245,7 +245,13 @@ We welcome contributions to SpellCast! Here's how you can help:
 
 ## License
 
-See the LICENSE file for details.
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License - see the [LICENSE](LICENSE) file for details.
+
+This means:
+- You are free to share (copy and redistribute) and adapt (remix, transform, and build upon) this material
+- You must give appropriate credit and indicate if changes were made
+- You may not use the material for commercial purposes
+- No additional restrictions — you may not apply legal terms or technological measures that legally restrict others from doing anything the license permits
 
 ## Author
 
