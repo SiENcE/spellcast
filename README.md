@@ -253,10 +253,6 @@ This means:
 - You may not use the material for commercial purposes
 - No additional restrictions — you may not apply legal terms or technological measures that legally restrict others from doing anything the license permits
 
-## Author
-
-FFDabei^SiENcE aka Florian Fischer
-
 ## Acknowledgments
 
 - [PeerJS](https://peerjs.com/) for the WebRTC implementation
