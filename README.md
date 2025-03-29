@@ -255,7 +255,7 @@ This means:
 
 ## Author
 
-FFDabei - aka SiENcE
+FFDabei^SiENcE aka Florian Fischer
 
 ## Acknowledgments
 
