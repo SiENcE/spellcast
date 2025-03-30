@@ -4,6 +4,10 @@
 
 ![SpellCast Logo](docs/spellcast-p2p-visualization.svg)
 
+## Try out now!
+
+https://crankgaming.itch.io/spellcast
+
 ## Key Features
 
 - **Fully Decentralized**: No central servers or databases - everything happens directly between peers
