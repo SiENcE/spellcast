@@ -6,7 +6,7 @@
 
 ## Try out now!
 
-https://crankgaming.itch.io/spellcast
+SpellCast on itch.io: [Spellcast](https://crankgaming.itch.io/spellcast)
 
 ## Key Features
 
