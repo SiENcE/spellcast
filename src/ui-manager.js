@@ -654,10 +654,24 @@ export class UIManager {
       return;
     }
 
+    const { username: myName } = this.userManager.getUserInfo();
+
     tweets.forEach(tweet => {
+      const isMine = tweet.username === myName;
+
       const tweetElement = document.createElement('div');
       tweetElement.className = 'tweet';
       tweetElement.dataset.id = tweet.id;
+
+      // Layout: [ avatar ] [ body ]
+      const tweetMain = document.createElement('div');
+      tweetMain.className = 'tweet-main';
+
+      const avatar = this.createAvatar(tweet.username, isMine);
+      tweetMain.appendChild(avatar);
+
+      const tweetBody = document.createElement('div');
+      tweetBody.className = 'tweet-body';
 
       const tweetHeader = document.createElement('div');
       tweetHeader.className = 'tweet-header';
@@ -665,11 +679,6 @@ export class UIManager {
       const tweetUser = document.createElement('div');
       tweetUser.className = 'tweet-user';
       tweetUser.textContent = tweet.username;
-
-      const tweetTime = document.createElement('div');
-      tweetTime.className = 'tweet-time';
-      tweetTime.textContent = this.formatTimestamp(tweet.timestamp);
-
       tweetHeader.appendChild(tweetUser);
 
       // Show the audience badge for circle (narrow-cast) messages
@@ -681,6 +690,9 @@ export class UIManager {
         tweetHeader.appendChild(badge);
       }
 
+      const tweetTime = document.createElement('div');
+      tweetTime.className = 'tweet-time';
+      tweetTime.textContent = this.formatTimestamp(tweet.timestamp);
       tweetHeader.appendChild(tweetTime);
 
       const tweetContent = document.createElement('div');
@@ -694,8 +706,6 @@ export class UIManager {
       // Create media container
       const tweetMediaContainer = document.createElement('div');
       tweetMediaContainer.className = 'tweet-media-container';
-      tweetMediaContainer.style.marginTop = '10px';
-      tweetMediaContainer.style.marginBottom = '10px';
 
       // Add attached image media if present
       if (tweet.mediaId) {
@@ -709,8 +719,7 @@ export class UIManager {
       tweetActions.className = 'tweet-actions';
 
       // Only add delete button for user's own tweets
-      const { username } = this.userManager.getUserInfo();
-      if (tweet.username === username) {
+      if (isMine) {
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-tweet-button';
         deleteButton.textContent = 'Delete';
@@ -719,13 +728,46 @@ export class UIManager {
         tweetActions.appendChild(deleteButton);
       }
 
-      tweetElement.appendChild(tweetHeader);
-      tweetElement.appendChild(tweetContent);
-      tweetElement.appendChild(tweetMediaContainer);
-      tweetElement.appendChild(tweetActions);
+      tweetBody.appendChild(tweetHeader);
+      tweetBody.appendChild(tweetContent);
+      tweetBody.appendChild(tweetMediaContainer);
+      tweetBody.appendChild(tweetActions);
+
+      tweetMain.appendChild(tweetBody);
+      tweetElement.appendChild(tweetMain);
 
       tweetsContainer.appendChild(tweetElement);
     });
+  }
+
+  /**
+   * Build a circular avatar element with the user's initial.
+   * @param {string} name
+   * @param {boolean} isSelf - your own avatar is rendered in the brand color
+   * @returns {HTMLElement}
+   */
+  createAvatar(name, isSelf = false) {
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.textContent = this.getInitial(name);
+    avatar.style.backgroundColor = this.getAvatarColor(name, isSelf);
+    return avatar;
+  }
+
+  getInitial(name) {
+    const trimmed = (name || '').trim();
+    return (trimmed ? trimmed[0] : '?').toUpperCase();
+  }
+
+  getAvatarColor(name, isSelf = false) {
+    if (isSelf) return '#1da1f2';
+    const palette = ['#794bc4', '#e0245e', '#17bf63', '#f45d22', '#e8a400', '#9b59b6', '#00b5ad', '#5a6acd'];
+    let hash = 0;
+    const str = name || '';
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+    }
+    return palette[hash % palette.length];
   }
 
   /**
@@ -1363,6 +1405,7 @@ export class UIManager {
 
     // Add button container
     const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'peer-actions';
 
     // Add appropriate buttons based on status
     if (connection) {
@@ -1409,8 +1452,13 @@ export class UIManager {
     peerInfoContainer.appendChild(statusElement);
     peerInfoContainer.appendChild(lastSeenElement);
 
-    peerElement.appendChild(statusIndicator);
-    peerElement.appendChild(peerInfoContainer);
+    const peerLeft = document.createElement('div');
+    peerLeft.className = 'peer-left';
+    peerLeft.appendChild(this.createAvatar(peerInfo.username, false));
+    peerLeft.appendChild(statusIndicator);
+    peerLeft.appendChild(peerInfoContainer);
+
+    peerElement.appendChild(peerLeft);
     peerElement.appendChild(buttonContainer);
 
     return peerElement;

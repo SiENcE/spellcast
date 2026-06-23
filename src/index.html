@@ -10,7 +10,7 @@
 </head>
 <body>
     <header>
-        <h1>SpellCast</h1>
+        <h1>✨ SpellCast</h1>
     </header>
 
     <div id="intro-container" class="container" style="display: none;">
@@ -52,9 +52,11 @@
 
     <div id="app-container" class="container">
         <div class="user-info">
-            <p>Logged in as: <span id="current-user"></span></p>
-			<span id="status">Not connected to any peers</span>
-			<div id="connection-quality" class="unknown"></div>
+            <p class="user-greeting">Logged in as <span id="current-user"></span></p>
+            <div class="status-pill">
+                <div id="connection-quality" class="unknown"></div>
+                <span id="status">Not connected to any peers</span>
+            </div>
         </div>
 
         <div class="app-body">

@@ -1,21 +1,44 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    overflow-x: hidden;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    max-width: 800px;
+    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+    max-width: 820px;
     margin: 0 auto;
-    padding: 20px;
-    background-color: #f5f8fa;
+    padding: 24px 20px 40px;
+    background: radial-gradient(120% 90% at 50% 0%, #eef6fd 0%, #dbe7f2 100%);
+    background-attachment: fixed;
+    color: #14171a;
+    min-height: 100vh;
 }
 
 header {
+    background: linear-gradient(180deg, #37b0f7 0%, #1187dd 100%);
+    border-radius: 16px 16px 0 0;
+    padding: 16px 20px;
     text-align: center;
-    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(10, 37, 64, 0.18);
+}
+
+header h1 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.6em;
+    letter-spacing: 0.3px;
 }
 
 .container {
     background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 10px 30px rgba(10, 37, 64, 0.18);
+    padding: 22px;
 }
 
 #setup-container,
@@ -25,28 +48,50 @@ header {
 }
 
 .tweet {
-    border-bottom: 1px solid #e6ecf0;
-    padding: 15px 0;
+    background: #fff;
+    border: 1px solid #eef2f5;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(10, 37, 64, 0.06);
+    transition: box-shadow 0.2s ease;
+}
+
+.tweet:hover {
+    box-shadow: 0 4px 14px rgba(10, 37, 64, 0.10);
+}
+
+.tweet-main {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.tweet-body {
+    flex: 1;
+    min-width: 0;
 }
 
 .tweet-header {
     display: flex;
     align-items: center;
-    margin-bottom: 5px;
+    gap: 6px;
+    margin-bottom: 3px;
 }
 
 .tweet-user {
     font-weight: bold;
-    margin-right: 5px;
 }
 
 .tweet-time {
-    color: #657786;
-    font-size: 0.9em;
+    color: #8295a6;
+    font-size: 0.85em;
+    margin-left: auto;
 }
 
 .tweet-content {
     margin: 5px 0;
+    overflow-wrap: anywhere;
 }
 
 .tweet-actions {
@@ -56,59 +101,93 @@ header {
 }
 
 .delete-tweet-button {
-    background-color: rgba(224, 36, 94, 0.1);
+    background: rgba(224, 36, 94, 0.1);
     color: #e0245e;
     border: 1px solid rgba(224, 36, 94, 0.3);
-    border-radius: 4px;
-    padding: 2px 8px;
+    border-radius: 6px;
+    padding: 3px 10px;
     font-size: 0.8em;
     cursor: pointer;
+    box-shadow: none;
 }
 
 .delete-tweet-button:hover {
-    background-color: rgba(224, 36, 94, 0.2);
+    background: rgba(224, 36, 94, 0.2);
+    filter: none;
+    box-shadow: none;
+}
+
+/* Media-preview buttons set their own background inline — clear the gradient image */
+.media-upload-button,
+.clear-media-button {
+    background-image: none;
+    box-shadow: none;
 }
 
 textarea {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #cfd9de;
-    border-radius: 10px;
+    border-radius: 12px;
     resize: none;
     margin-bottom: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+textarea:focus,
+input[type="text"]:focus {
+    outline: none;
+    border-color: #1da1f2;
+    box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.15);
 }
 
 button {
-    background-color: #1da1f2;
+    background: linear-gradient(180deg, #34a8f5 0%, #1a8fe0 100%);
     color: white;
     border: none;
     border-radius: 30px;
     padding: 10px 20px;
     cursor: pointer;
     font-weight: bold;
+    box-shadow: 0 2px 6px rgba(26, 143, 224, 0.35);
+    transition: transform 0.08s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 button:hover {
-    background-color: #1a91da;
+    filter: brightness(1.06);
+    box-shadow: 0 4px 12px rgba(26, 143, 224, 0.42);
+}
+
+button:active {
+    transform: translateY(1px);
 }
 
 .danger-button {
-    background-color: #e0245e;
-}
-
-.danger-button:hover {
-    background-color: #c01e4e;
+    background: linear-gradient(180deg, #f0436f 0%, #e0245e 100%);
+    box-shadow: 0 2px 6px rgba(224, 36, 94, 0.3);
 }
 
 .peer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    gap: 10px;
+    padding: 12px;
     margin-bottom: 10px;
-    background-color: #f7f9fa;
-    border-radius: 5px;
+    background-color: #fff;
+    border: 1px solid #eef2f5;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(10, 37, 64, 0.05);
     cursor: default;
+}
+
+.peer-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
 }
 
 #peers-list {
@@ -116,7 +195,8 @@ button:hover {
 }
 
 .peer:hover {
-    background-color: #edf0f2;
+    background-color: #fbfdff;
+    box-shadow: 0 3px 10px rgba(10, 37, 64, 0.08);
 }
 
 #qrcode,
@@ -405,6 +485,16 @@ button:hover {
     margin: 6px 0;
 }
 
+.circle-member-row span {
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
+
+/* Long peer IDs should wrap, never force the layout wider */
+.peer-id {
+    overflow-wrap: anywhere;
+}
+
 .circle-add-row select {
     flex: 1;
 }
@@ -510,10 +600,174 @@ button:hover {
     padding: 10px;
 }
 
-/* ===== Responsive: stack sidebar on small screens ===== */
+/* ===== Form inputs ===== */
+input[type="text"] {
+    padding: 10px 12px;
+    border: 1px solid #cfd9de;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+/* ===== Avatars ===== */
+.avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 17px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(10, 37, 64, 0.18);
+    user-select: none;
+}
+
+/* ===== Top toolbar: greeting + connection pill ===== */
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #eef2f5;
+}
+
+.user-greeting {
+    margin: 0;
+    color: #3a5168;
+}
+
+.user-greeting #current-user {
+    font-weight: bold;
+    color: #14171a;
+}
+
+.status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f0f3f5;
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 0.82em;
+    color: #5b6b7a;
+}
+
+#status {
+    color: inherit;
+    margin: 0;
+}
+
+/* The connection-quality dot in the toolbar (color set by its quality class) */
+#connection-quality {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ===== Compose box as a card ===== */
+#tweet-form {
+    margin-bottom: 20px;
+    background: #fff;
+    border: 1px solid #e7eef3;
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(10, 37, 64, 0.05);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#tweet-form:focus-within {
+    border-color: #9fd4f7;
+    box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.12);
+}
+
+#tweet-form textarea {
+    border: none;
+    padding: 6px;
+    margin-bottom: 4px;
+    background: transparent;
+}
+
+#tweet-form textarea:focus {
+    box-shadow: none;
+}
+
+/* Hide the per-tweet media container when there's nothing in it */
+.tweet-media-container:empty {
+    display: none;
+}
+
+.tweet-media-container {
+    margin-top: 8px;
+}
+
+/* Any image inside a message never exceeds the message width */
+.tweet-media-container img,
+.tweet-media,
+.link-preview img {
+    max-width: 100%;
+}
+
+/* =====================================================================
+   Responsive layout
+   ===================================================================== */
+
+/* ----- Tablet: slimmer sidebar, tighter spacing ----- */
+@media (max-width: 820px) {
+    body {
+        padding: 16px 14px 32px;
+    }
+
+    .container {
+        padding: 18px;
+    }
+
+    .app-body {
+        gap: 12px;
+    }
+
+    #circles-sidebar {
+        width: 150px;
+        padding-right: 10px;
+    }
+}
+
+/* ----- Phones: stack everything, circles become a chip row ----- */
 @media (max-width: 600px) {
+    body {
+        padding: 10px 8px 28px;
+    }
+
+    header {
+        border-radius: 12px 12px 0 0;
+        padding: 14px;
+    }
+
+    header h1 {
+        font-size: 1.35em;
+    }
+
+    .container {
+        padding: 14px;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .user-info {
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+    }
+
+    /* Sidebar moves above the feed as a horizontal, scrollable chip row */
     .app-body {
         flex-direction: column;
+        gap: 14px;
     }
 
     #circles-sidebar {
@@ -521,6 +775,153 @@ button:hover {
         border-right: none;
         border-bottom: 1px solid #e6ecf0;
         padding-right: 0;
-        padding-bottom: 12px;
+        padding-bottom: 14px;
+    }
+
+    #circles-sidebar h3 {
+        margin-bottom: 8px;
+    }
+
+    #circles-sidebar-list {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #circles-sidebar-list .circle-item {
+        flex: 0 0 auto;
+        margin-bottom: 0;
+        white-space: nowrap;
+    }
+
+    .sidebar-empty {
+        white-space: nowrap;
+        margin: 0;
+    }
+
+    .sidebar-new-circle {
+        margin-top: 10px;
+    }
+
+    /* Tabs scroll horizontally instead of overflowing */
+    .tab-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .tab-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tab {
+        padding: 10px 12px;
+        white-space: nowrap;
+    }
+
+    /* Smaller avatars and tighter cards so messages use the screen well */
+    .avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+    }
+
+    .tweet {
+        padding: 11px;
+    }
+
+    .tweet-main {
+        gap: 9px;
+    }
+
+    .tweet-header {
+        flex-wrap: wrap;
+    }
+
+    .tweet-content {
+        font-size: 0.95em;
+    }
+
+    /* Cap media height so a tall image doesn't dominate a small screen */
+    .tweet-media-container img,
+    .tweet-media,
+    .link-preview-image img,
+    .link-preview-thumb img {
+        max-height: 240px;
+    }
+
+    /* Peer rows: details on top, actions wrap below full-width */
+    .peer {
+        flex-wrap: wrap;
+    }
+
+    .peer-left {
+        flex: 1 1 100%;
+    }
+
+    .peer-actions {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .peer-actions button {
+        flex: 1;
+        margin: 0 !important;
+    }
+
+    /* Circle management: stack controls */
+    .circle-member-row,
+    .circle-add-row {
+        flex-wrap: wrap;
+    }
+
+    .circle-add-row select {
+        width: 100%;
+    }
+
+    #create-circle-form input {
+        width: 100%;
+        margin: 0 0 8px 0;
+    }
+
+    #create-circle-form button {
+        width: 100%;
+    }
+
+    /* Compose actions can wrap on very narrow screens */
+    .tweet-form-actions {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+}
+
+/* ----- Small phones ----- */
+@media (max-width: 380px) {
+    header h1 {
+        font-size: 1.2em;
+    }
+
+    .tab {
+        padding: 9px 10px;
+        font-size: 0.95em;
+    }
+
+    .avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
+    }
+
+    .tweet {
+        padding: 10px;
+    }
+
+    .tweet-circle-badge {
+        display: none;
     }
 }
