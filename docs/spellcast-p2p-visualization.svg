@@ -1,131 +1,242 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
-  <!-- Background -->
-  <rect width="800" height="600" fill="#f8f9fa" />
-  
-  <!-- Title -->
-  <text x="400" y="40" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold">SpellCast P2P Network</text>
-  <text x="400" y="70" font-family="Arial" font-size="16" text-anchor="middle" font-style="italic">How messages propagate between multiple peers</text>
-  
-  <!-- Network Diagram -->
-  <!-- Peer A (Central) -->
-  <circle cx="400" cy="250" r="50" fill="#1da1f2" />
-  <text x="400" y="250" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Alice</text>
-  <text x="400" y="270" font-family="Arial" font-size="12" text-anchor="middle" fill="white">Peer A</text>
-  
-  <!-- Peer B -->
-  <circle cx="200" cy="150" r="50" fill="#794bc4" />
-  <text x="200" y="150" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Bob</text>
-  <text x="200" y="170" font-family="Arial" font-size="12" text-anchor="middle" fill="white">Peer B</text>
-  
-  <!-- Peer C -->
-  <circle cx="600" cy="150" r="50" fill="#794bc4" />
-  <text x="600" y="150" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Carol</text>
-  <text x="600" y="170" font-family="Arial" font-size="12" text-anchor="middle" fill="white">Peer C</text>
-  
-  <!-- Peer D -->
-  <circle cx="250" cy="400" r="50" fill="#794bc4" />
-  <text x="250" y="400" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Dave</text>
-  <text x="250" y="420" font-family="Arial" font-size="12" text-anchor="middle" fill="white">Peer D</text>
-  
-  <!-- Peer E -->
-  <circle cx="550" cy="400" r="50" fill="#794bc4" />
-  <text x="550" y="400" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Eve</text>
-  <text x="550" y="420" font-family="Arial" font-size="12" text-anchor="middle" fill="white">Peer E</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <!-- Gradients -->
+    <radialGradient id="bgGrad" cx="50%" cy="35%" r="80%">
+      <stop offset="0%" stop-color="#eef6fd"/>
+      <stop offset="100%" stop-color="#dbe7f2"/>
+    </radialGradient>
+    <linearGradient id="headerGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#37b0f7"/>
+      <stop offset="100%" stop-color="#1187dd"/>
+    </linearGradient>
+    <linearGradient id="btnGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#34a8f5"/>
+      <stop offset="100%" stop-color="#1a8fe0"/>
+    </linearGradient>
+    <radialGradient id="orbGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="45%" stop-color="#9ad7ff"/>
+      <stop offset="100%" stop-color="#1da1f2"/>
+    </radialGradient>
+    <linearGradient id="peerGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8a5fd6"/>
+      <stop offset="100%" stop-color="#6a3fb8"/>
+    </linearGradient>
 
-  <!-- Connections -->
-  <!-- Active connections are solid lines -->
-  <line x1="400" y1="250" x2="200" y2="150" stroke="#333" stroke-width="3" />
-  <line x1="400" y1="250" x2="600" y2="150" stroke="#333" stroke-width="3" />
-  <line x1="400" y1="250" x2="250" y2="400" stroke="#333" stroke-width="3" />
-  <line x1="400" y1="250" x2="550" y2="400" stroke="#333" stroke-width="3" />
-  
-  <!-- Not all peers are connected to each other -->
-  <line x1="200" y1="150" x2="250" y2="400" stroke="#333" stroke-width="3" stroke-dasharray="5,5" />
-  <line x1="600" y1="150" x2="550" y2="400" stroke="#333" stroke-width="3" stroke-dasharray="5,5" />
-  
-  <!-- Message Broadcast Animation -->
-  <!-- Message from Alice (Peer A) spreading to all connected peers -->
-  <circle cx="400" cy="250" r="10" fill="#ff5252">
-    <animate attributeName="r" values="10;60;10" dur="3s" repeatCount="indefinite" />
-    <animate attributeName="opacity" values="1;0.2;1" dur="3s" repeatCount="indefinite" />
-  </circle>
-  
-  <!-- Message reaching Bob (Peer B) -->
-  <circle cx="200" cy="150" r="0" fill="#ff5252">
-    <animate attributeName="r" values="0;15;0" dur="3s" begin="0.5s" repeatCount="indefinite" />
-    <animate attributeName="opacity" values="0;1;0" dur="3s" begin="0.5s" repeatCount="indefinite" />
-  </circle>
-  
-  <!-- Message reaching Carol (Peer C) -->
-  <circle cx="600" cy="150" r="0" fill="#ff5252">
-    <animate attributeName="r" values="0;15;0" dur="3s" begin="0.6s" repeatCount="indefinite" />
-    <animate attributeName="opacity" values="0;1;0" dur="3s" begin="0.6s" repeatCount="indefinite" />
-  </circle>
-  
-  <!-- Message reaching Dave (Peer D) -->
-  <circle cx="250" cy="400" r="0" fill="#ff5252">
-    <animate attributeName="r" values="0;15;0" dur="3s" begin="0.7s" repeatCount="indefinite" />
-    <animate attributeName="opacity" values="0;1;0" dur="3s" begin="0.7s" repeatCount="indefinite" />
-  </circle>
-  
-  <!-- Message reaching Eve (Peer E) -->
-  <circle cx="550" cy="400" r="0" fill="#ff5252">
-    <animate attributeName="r" values="0;15;0" dur="3s" begin="0.8s" repeatCount="indefinite" />
-    <animate attributeName="opacity" values="0;1;0" dur="3s" begin="0.8s" repeatCount="indefinite" />
-  </circle>
-  
-  <!-- Secondary message propagation (from Bob to Dave) -->
-  <circle cx="225" cy="275" r="0" fill="#ff5252">
-    <animate attributeName="r" values="0;10;0" dur="3s" begin="1.2s" repeatCount="indefinite" />
-    <animate attributeName="opacity" values="0;0.8;0" dur="3s" begin="1.2s" repeatCount="indefinite" />
-  </circle>
-  
-  <!-- Secondary message propagation (from Carol to Eve) -->
-  <circle cx="575" cy="275" r="0" fill="#ff5252">
-    <animate attributeName="r" values="0;10;0" dur="3s" begin="1.3s" repeatCount="indefinite" />
-    <animate attributeName="opacity" values="0;0.8;0" dur="3s" begin="1.3s" repeatCount="indefinite" />
-  </circle>
-  
-  <!-- Local Storage for Each Peer -->
-  <!-- Alice's storage -->
-  <rect x="350" y="320" width="100" height="40" rx="5" fill="#fff" stroke="#333" stroke-width="2" />
-  <text x="400" y="345" font-family="Arial" font-size="12" text-anchor="middle">Local Storage</text>
-  
-  <!-- Bob's storage -->
-  <rect x="150" y="220" width="100" height="40" rx="5" fill="#fff" stroke="#333" stroke-width="2" />
-  <text x="200" y="245" font-family="Arial" font-size="12" text-anchor="middle">Local Storage</text>
-  
-  <!-- Carol's storage -->
-  <rect x="550" y="220" width="100" height="40" rx="5" fill="#fff" stroke="#333" stroke-width="2" />
-  <text x="600" y="245" font-family="Arial" font-size="12" text-anchor="middle">Local Storage</text>
-  
-  <!-- Dave's storage -->
-  <rect x="200" y="470" width="100" height="40" rx="5" fill="#fff" stroke="#333" stroke-width="2" />
-  <text x="250" y="495" font-family="Arial" font-size="12" text-anchor="middle">Local Storage</text>
-  
-  <!-- Eve's storage -->
-  <rect x="500" y="470" width="100" height="40" rx="5" fill="#fff" stroke="#333" stroke-width="2" />
-  <text x="550" y="495" font-family="Arial" font-size="12" text-anchor="middle">Local Storage</text>
-  
-  <!-- Legend -->
-  <rect x="100" y="500" width="20" height="20" fill="#1da1f2" />
-  <text x="130" y="515" font-family="Arial" font-size="14" text-anchor="start">Peer sending message</text>
-  
-  <rect x="100" y="530" width="20" height="20" fill="#794bc4" />
-  <text x="130" y="545" font-family="Arial" font-size="14" text-anchor="start">Connected peer</text>
-  
-  <line x1="300" y1="510" x2="340" y2="510" stroke="#333" stroke-width="3" />
-  <text x="350" y="515" font-family="Arial" font-size="14" text-anchor="start">Direct connection</text>
-  
-  <line x1="300" y1="540" x2="340" y2="540" stroke="#333" stroke-width="3" stroke-dasharray="5,5" />
-  <text x="350" y="545" font-family="Arial" font-size="14" text-anchor="start">Indirect connection</text>
-  
-  <circle cx="510" cy="510" r="10" fill="#ff5252" />
-  <text x="530" y="515" font-family="Arial" font-size="14" text-anchor="start">Message propagation</text>
-  
-  <rect x="490" y="530" width="20" height="20" fill="#fff" stroke="#333" stroke-width="2" />
-  <text x="530" y="545" font-family="Arial" font-size="14" text-anchor="start">Local storage</text>
-  
-  <!-- Message Flow Description -->
-  <text x="400" y="570" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Each peer stores messages locally and forwards to connected peers</text>
+    <!-- Filters -->
+    <filter id="winShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#0a2540" flood-opacity="0.22"/>
+    </filter>
+    <filter id="softShadow" x="-40%" y="-40%" width="180%" height="200%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0a2540" flood-opacity="0.14"/>
+    </filter>
+    <filter id="glow" x="-120%" y="-120%" width="340%" height="340%">
+      <feGaussianBlur stdDeviation="3.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Clip the app body to the rounded window -->
+    <clipPath id="winClip">
+      <rect x="120" y="70" width="560" height="430" rx="18"/>
+    </clipPath>
+
+    <!-- Typing reveal for the composed spell -->
+    <clipPath id="typeClip">
+      <rect x="296" y="198" width="0" height="30">
+        <animate attributeName="width" dur="7s" repeatCount="indefinite"
+                 values="0;0;292;292;0;0" keyTimes="0;0.06;0.26;0.93;0.95;1"/>
+      </rect>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+
+  <!-- Twinkling sparkles -->
+  <g fill="#1da1f2">
+    <circle cx="120" cy="300" r="2.5" opacity="0.5"><animate attributeName="opacity" dur="3s" values="0.2;0.8;0.2" repeatCount="indefinite"/></circle>
+    <circle cx="690" cy="320" r="2.5" opacity="0.5"><animate attributeName="opacity" dur="3.4s" values="0.8;0.2;0.8" repeatCount="indefinite"/></circle>
+    <circle cx="400" cy="40" r="2" opacity="0.4"><animate attributeName="opacity" dur="2.6s" values="0.2;0.7;0.2" repeatCount="indefinite"/></circle>
+    <circle cx="150" cy="560" r="2" opacity="0.4"><animate attributeName="opacity" dur="3.1s" values="0.7;0.2;0.7" repeatCount="indefinite"/></circle>
+    <circle cx="660" cy="560" r="2" opacity="0.4"><animate attributeName="opacity" dur="2.8s" values="0.2;0.7;0.2" repeatCount="indefinite"/></circle>
+  </g>
+
+  <!-- ===== Peer halo (decentralized network around the app) ===== -->
+  <!-- Connection lines -->
+  <g stroke="#9fb4c6" stroke-width="2" stroke-dasharray="4,6" opacity="0.7">
+    <line x1="62" y1="112" x2="150" y2="132"/>
+    <line x1="738" y1="112" x2="650" y2="132"/>
+    <line x1="72" y1="488" x2="158" y2="452"/>
+    <line x1="728" y1="488" x2="642" y2="452"/>
+  </g>
+
+  <!-- Peer nodes -->
+  <g>
+    <g>
+      <circle cx="62" cy="112" r="24" fill="url(#peerGrad)" filter="url(#softShadow)"/>
+      <text x="62" y="117" font-size="16" text-anchor="middle" fill="#fff" font-weight="bold">B</text>
+      <text x="62" y="150" font-size="12" text-anchor="middle" fill="#5b6b7a">Bob</text>
+      <circle cx="62" cy="112" r="24" fill="none" stroke="#ff5252" stroke-width="3" opacity="0">
+        <animate attributeName="r" dur="7s" repeatCount="indefinite" values="24;24;40;24;24" keyTimes="0;0.55;0.64;0.66;1"/>
+        <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0;0.85;0;0" keyTimes="0;0.55;0.62;0.66;1"/>
+      </circle>
+    </g>
+    <g>
+      <circle cx="738" cy="112" r="24" fill="url(#peerGrad)" filter="url(#softShadow)"/>
+      <text x="738" y="117" font-size="16" text-anchor="middle" fill="#fff" font-weight="bold">C</text>
+      <text x="738" y="150" font-size="12" text-anchor="middle" fill="#5b6b7a">Carol</text>
+      <circle cx="738" cy="112" r="24" fill="none" stroke="#ff5252" stroke-width="3" opacity="0">
+        <animate attributeName="r" dur="7s" repeatCount="indefinite" values="24;24;40;24;24" keyTimes="0;0.56;0.65;0.67;1"/>
+        <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0;0.85;0;0" keyTimes="0;0.56;0.63;0.67;1"/>
+      </circle>
+    </g>
+    <g>
+      <circle cx="62" cy="488" r="24" fill="url(#peerGrad)" filter="url(#softShadow)"/>
+      <text x="62" y="493" font-size="16" text-anchor="middle" fill="#fff" font-weight="bold">D</text>
+      <text x="62" y="526" font-size="12" text-anchor="middle" fill="#5b6b7a">Dave</text>
+      <circle cx="62" cy="488" r="24" fill="none" stroke="#ff5252" stroke-width="3" opacity="0">
+        <animate attributeName="r" dur="7s" repeatCount="indefinite" values="24;24;40;24;24" keyTimes="0;0.57;0.66;0.68;1"/>
+        <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0;0.85;0;0" keyTimes="0;0.57;0.64;0.68;1"/>
+      </circle>
+    </g>
+    <g>
+      <circle cx="738" cy="488" r="24" fill="url(#peerGrad)" filter="url(#softShadow)"/>
+      <text x="738" y="493" font-size="16" text-anchor="middle" fill="#fff" font-weight="bold">E</text>
+      <text x="738" y="526" font-size="12" text-anchor="middle" fill="#5b6b7a">Eve</text>
+      <circle cx="738" cy="488" r="24" fill="none" stroke="#ff5252" stroke-width="3" opacity="0">
+        <animate attributeName="r" dur="7s" repeatCount="indefinite" values="24;24;40;24;24" keyTimes="0;0.58;0.67;0.69;1"/>
+        <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0;0.85;0;0" keyTimes="0;0.58;0.65;0.69;1"/>
+      </circle>
+    </g>
+  </g>
+
+  <!-- ===== App window ===== -->
+  <rect x="120" y="70" width="560" height="430" rx="18" fill="#ffffff" filter="url(#winShadow)"/>
+
+  <g clip-path="url(#winClip)">
+    <!-- Header -->
+    <rect x="120" y="70" width="560" height="48" fill="url(#headerGrad)"/>
+    <circle cx="142" cy="94" r="5" fill="#ff5f56"/>
+    <circle cx="160" cy="94" r="5" fill="#ffbd2e"/>
+    <circle cx="178" cy="94" r="5" fill="#27c93f"/>
+    <text x="400" y="99" font-size="18" text-anchor="middle" fill="#fff" font-weight="bold">&#10024; SpellCast</text>
+    <rect x="586" y="83" width="80" height="22" rx="11" fill="#ffffff" opacity="0.18"/>
+    <circle cx="600" cy="94" r="4" fill="#9bffb0"/>
+    <text x="612" y="98" font-size="11" fill="#fff">4 peers</text>
+
+    <!-- Sidebar -->
+    <rect x="120" y="118" width="148" height="382" fill="#f6f9fb"/>
+    <line x1="268" y1="118" x2="268" y2="500" stroke="#e6ecf0" stroke-width="1"/>
+    <text x="138" y="146" font-size="11" fill="#8295a6" font-weight="bold" letter-spacing="1">CIRCLES</text>
+
+    <!-- Active circle -->
+    <rect x="132" y="156" width="124" height="30" rx="8" fill="#e3f3fe"/>
+    <text x="146" y="176" font-size="13" fill="#1187dd" font-weight="bold">All Peers</text>
+    <!-- Other circles -->
+    <text x="146" y="212" font-size="13" fill="#2c3e50">Friends</text>
+    <rect x="222" y="200" width="22" height="16" rx="8" fill="#e1e8ed"/>
+    <text x="233" y="212" font-size="10" fill="#5b6b7a" text-anchor="middle">3</text>
+
+    <text x="146" y="246" font-size="13" fill="#2c3e50">Work</text>
+    <rect x="222" y="234" width="22" height="16" rx="8" fill="#e1e8ed"/>
+    <text x="233" y="246" font-size="10" fill="#5b6b7a" text-anchor="middle">2</text>
+
+    <text x="146" y="280" font-size="13" fill="#2c3e50">Family</text>
+    <rect x="222" y="268" width="22" height="16" rx="8" fill="#e1e8ed"/>
+    <text x="233" y="280" font-size="10" fill="#5b6b7a" text-anchor="middle">4</text>
+
+    <text x="138" y="330" font-size="12" fill="#1da1f2">+ New circle</text>
+
+    <!-- Main column -->
+    <text x="286" y="142" font-size="12" fill="#657786">Logged in as <tspan font-weight="bold" fill="#14171a">Alice</tspan></text>
+
+    <!-- Tabs -->
+    <text x="290" y="170" font-size="13" fill="#1187dd" font-weight="bold">Feed</text>
+    <rect x="288" y="178" width="34" height="3" rx="1.5" fill="#1da1f2"/>
+    <text x="345" y="170" font-size="13" fill="#8295a6">Connect</text>
+    <text x="423" y="170" font-size="13" fill="#8295a6">Circles</text>
+    <text x="497" y="170" font-size="13" fill="#8295a6">Profile</text>
+    <line x1="286" y1="181" x2="656" y2="181" stroke="#e6ecf0" stroke-width="1"/>
+
+    <!-- Compose box -->
+    <rect x="286" y="192" width="370" height="92" rx="12" fill="#fff" stroke="#dbe4ea" stroke-width="1.5" filter="url(#softShadow)"/>
+    <!-- typed spell -->
+    <text x="298" y="220" font-size="14" fill="#14171a" clip-path="url(#typeClip)">Hello, decentralized world! &#129668;</text>
+    <!-- audience + cast button -->
+    <text x="298" y="268" font-size="11" font-style="italic" fill="#8295a6">Casting to: All Peers</text>
+    <!-- Cast button -->
+    <rect x="586" y="252" width="60" height="26" rx="13" fill="url(#btnGrad)"/>
+    <text x="616" y="269" font-size="12" text-anchor="middle" fill="#fff" font-weight="bold">Cast</text>
+    <!-- Cast click ripple -->
+    <circle cx="616" cy="265" r="0" fill="none" stroke="#1da1f2" stroke-width="2">
+      <animate attributeName="r" dur="7s" repeatCount="indefinite" values="0;0;6;30;30" keyTimes="0;0.27;0.29;0.35;1"/>
+      <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0;0.9;0;0" keyTimes="0;0.27;0.29;0.35;1"/>
+    </circle>
+
+    <!-- Feed: the newly cast spell (animates in) -->
+    <g>
+      <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.40;0.45;0.93;0.96;1"/>
+      <animateTransform attributeName="transform" type="translate" additive="sum" dur="7s" repeatCount="indefinite"
+                        values="0 16;0 16;0 0;0 0;0 0;0 0" keyTimes="0;0.40;0.45;0.93;0.96;1"/>
+      <rect x="286" y="296" width="370" height="58" rx="10" fill="#f4fbff" stroke="#cdeafd" stroke-width="1.5"/>
+      <circle cx="312" cy="320" r="13" fill="#1da1f2"/>
+      <text x="312" y="325" font-size="13" text-anchor="middle" fill="#fff" font-weight="bold">A</text>
+      <text x="334" y="318" font-size="13" fill="#14171a" font-weight="bold">Alice <tspan fill="#8295a6" font-weight="normal" font-size="11">&#183; just now</tspan></text>
+      <text x="334" y="338" font-size="12.5" fill="#2c3e50">Hello, decentralized world! &#129668;</text>
+    </g>
+
+    <!-- Feed: previous spells -->
+    <g opacity="0.96">
+      <rect x="286" y="362" width="370" height="54" rx="10" fill="#ffffff" stroke="#eef2f5" stroke-width="1"/>
+      <circle cx="312" cy="385" r="13" fill="#794bc4"/>
+      <text x="312" y="390" font-size="13" text-anchor="middle" fill="#fff" font-weight="bold">B</text>
+      <text x="334" y="383" font-size="13" fill="#14171a" font-weight="bold">Bob <tspan fill="#8295a6" font-weight="normal" font-size="11">&#183; 2m</tspan></text>
+      <text x="334" y="403" font-size="12.5" fill="#2c3e50">Loving this P2P magic &#10024;</text>
+    </g>
+    <g opacity="0.9">
+      <rect x="286" y="424" width="370" height="54" rx="10" fill="#ffffff" stroke="#eef2f5" stroke-width="1"/>
+      <circle cx="312" cy="447" r="13" fill="#794bc4"/>
+      <text x="312" y="452" font-size="13" text-anchor="middle" fill="#fff" font-weight="bold">C</text>
+      <text x="334" y="445" font-size="13" fill="#14171a" font-weight="bold">Carol <tspan fill="#8295a6" font-weight="normal" font-size="11">&#183; 5m</tspan></text>
+      <text x="334" y="465" font-size="12.5" fill="#2c3e50">No servers, no problem &#128274;</text>
+    </g>
+
+    <!-- The spell orb travelling from the Cast button into the feed -->
+    <circle r="7" fill="url(#orbGrad)" filter="url(#glow)">
+      <animate attributeName="cx" dur="7s" repeatCount="indefinite" values="616;616;616;320;320;320" keyTimes="0;0.31;0.315;0.41;0.42;1"/>
+      <animate attributeName="cy" dur="7s" repeatCount="indefinite" values="265;265;265;320;320;320" keyTimes="0;0.31;0.315;0.41;0.42;1"/>
+      <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.31;0.32;0.40;0.42;1"/>
+    </circle>
+  </g>
+
+  <!-- ===== Spell propagation out to every peer (outside the window, so not clipped) ===== -->
+  <g filter="url(#glow)">
+    <!-- to Bob -->
+    <circle r="6" fill="url(#orbGrad)">
+      <animate attributeName="cx" dur="7s" repeatCount="indefinite" values="400;400;62;62" keyTimes="0;0.46;0.60;1"/>
+      <animate attributeName="cy" dur="7s" repeatCount="indefinite" values="300;300;112;112" keyTimes="0;0.46;0.60;1"/>
+      <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.46;0.48;0.58;0.62;1"/>
+    </circle>
+    <!-- to Carol -->
+    <circle r="6" fill="url(#orbGrad)">
+      <animate attributeName="cx" dur="7s" repeatCount="indefinite" values="400;400;738;738" keyTimes="0;0.46;0.61;1"/>
+      <animate attributeName="cy" dur="7s" repeatCount="indefinite" values="300;300;112;112" keyTimes="0;0.46;0.61;1"/>
+      <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.46;0.48;0.59;0.63;1"/>
+    </circle>
+    <!-- to Dave -->
+    <circle r="6" fill="url(#orbGrad)">
+      <animate attributeName="cx" dur="7s" repeatCount="indefinite" values="400;400;62;62" keyTimes="0;0.46;0.62;1"/>
+      <animate attributeName="cy" dur="7s" repeatCount="indefinite" values="300;300;488;488" keyTimes="0;0.46;0.62;1"/>
+      <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.46;0.48;0.60;0.64;1"/>
+    </circle>
+    <!-- to Eve -->
+    <circle r="6" fill="url(#orbGrad)">
+      <animate attributeName="cx" dur="7s" repeatCount="indefinite" values="400;400;738;738" keyTimes="0;0.46;0.63;1"/>
+      <animate attributeName="cy" dur="7s" repeatCount="indefinite" values="300;300;488;488" keyTimes="0;0.46;0.63;1"/>
+      <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.46;0.48;0.61;0.65;1"/>
+    </circle>
+  </g>
+
+  <!-- Caption -->
+  <text x="400" y="582" font-size="15" text-anchor="middle" fill="#3a5168" font-weight="bold">One spell, cast straight to every peer &#8212; no server in between.</text>
 </svg>

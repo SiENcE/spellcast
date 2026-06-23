@@ -5,6 +5,7 @@ import { TweetManager } from './tweet-manager.js';
 import { PeerManager } from './peer-manager.js';
 import { StorageManager } from './storage-manager.js';
 import { MediaManager } from './media-manager.js';
+import { CircleManager } from './circle-manager.js';
 
 // Instantiate main application when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,13 +20,15 @@ class SpellCastApp {
     this.peerManager = new PeerManager(this.userManager, this.storageManager);
 	this.mediaManager = new MediaManager(this.storageManager);
     this.tweetManager = new TweetManager(this.userManager, this.peerManager, this.storageManager, this.mediaManager);
+    this.circleManager = new CircleManager(this.storageManager);
 
     this.uiManager = new UIManager(
       this.userManager,
       this.peerManager,
       this.tweetManager,
       this.storageManager,
-	  this.mediaManager
+	  this.mediaManager,
+	  this.circleManager
     );
   }
 
@@ -40,6 +43,15 @@ class SpellCastApp {
     this.uiManager.setupEventListeners();
     this.peerManager.enhanceConnectivity();
 
+    // Load persisted data from storage BEFORE logging in / connecting to peers.
+    // This ensures our message history is in memory before any peer connection
+    // can deliver (and persist) data — otherwise incoming messages could
+    // overwrite stored history, and the feed could render empty on re-login.
+    await this.tweetManager.loadTweets();
+    await this.tweetManager.loadMessageDistributionState();
+    await this.peerManager.loadPeers();
+    await this.circleManager.loadCircles();
+
     // Show appropriate screen based on login status
     if (!hasCredentials) {
       this.uiManager.showIntroScreen();
@@ -53,8 +65,10 @@ class SpellCastApp {
         this.uiManager.elements.appContainer.style.display = 'block';
         this.uiManager.elements.currentUserElement.textContent = this.userManager.username;
 
-        // Update profile information
+        // Update profile information and render the loaded history
         this.uiManager.updateProfileInfo();
+        this.uiManager.renderTweets();
+        this.uiManager.updatePeersList();
       } catch (error) {
         console.error('Auto-login error:', error);
         // If auto-login fails, show the intro screen
@@ -63,11 +77,6 @@ class SpellCastApp {
         alert('Failed to auto-login: ' + error.message);
       }
     }
-
-    // Load data from storage
-    await this.tweetManager.loadTweets();
-    await this.peerManager.loadPeers();
-    await this.tweetManager.loadMessageDistributionState();
 
     // Set up periodic media cleanup
     this.setupMediaCleanupTask();

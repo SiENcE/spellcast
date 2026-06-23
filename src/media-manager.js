@@ -1,6 +1,8 @@
 // Manages media attachments for SpellCast
 // Handles image processing, storage, and retrieval
 
+import { StorageManager } from './storage-manager.js';
+
 export class MediaManager {
   // Constants for validation and limits
   static MEDIA_TYPES = {
@@ -22,43 +24,14 @@ export class MediaManager {
   
   constructor(storageManager) {
     this.storageManager = storageManager;
-    
-    // Storage constants
-    this.MEDIA_STORE_NAME = 'media_store';
-    this.DB_VERSION = 2; // Increment the DB version to add the new store
-    
-    // Initialize database
-    this.dbPromise = this.initDatabase();
-  }
-  
-  /**
-   * Initialize the IndexedDB database with media store
-   * @returns {Promise} Promise that resolves to the database
-   */
-  async initDatabase() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.storageManager.constructor.DB_NAME, this.DB_VERSION);
-      
-      request.onerror = (event) => {
-        console.error('IndexedDB error:', event.target.error);
-        reject(event.target.error);
-      };
-      
-      request.onsuccess = (event) => {
-        console.log('MediaManager: IndexedDB opened successfully');
-        resolve(event.target.result);
-      };
-      
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result;
-        
-        // Create media store if it doesn't exist
-        if (!db.objectStoreNames.contains(this.MEDIA_STORE_NAME)) {
-          db.createObjectStore(this.MEDIA_STORE_NAME);
-          console.log('Created media store:', this.MEDIA_STORE_NAME);
-        }
-      };
-    });
+
+    // The media store now lives in the same database/version managed by
+    // StorageManager, so we reuse its single connection instead of opening the
+    // database again at a different version (which caused a "blocked" conflict).
+    this.MEDIA_STORE_NAME = StorageManager.MEDIA_STORE_NAME;
+
+    // Reuse the shared database connection
+    this.dbPromise = this.storageManager.dbPromise;
   }
   
   /**
@@ -84,18 +57,18 @@ export class MediaManager {
     if (!file || !MediaManager.ALLOWED_MIME_TYPES.includes(file.type)) {
       throw new Error('Invalid file type. Allowed types: JPEG, PNG, GIF, WebP');
     }
-console.log('a');
+
     if (file.size > MediaManager.MAX_FILE_SIZE) {
       throw new Error(`File too large. Maximum size: ${MediaManager.MAX_FILE_SIZE / 1024 / 1024}MB`);
     }
-console.log('b');
+
     try {
       // Generate a unique ID for the media
       const mediaId = `media_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-console.log('c');
+
       // Process the image (resize and create thumbnail)
       const { fullImage, thumbnail } = await this.processImage(file);
-console.log('d');
+
       // Store the processed image
       await this.storeMedia(mediaId, {
         type: MediaManager.MEDIA_TYPES.IMAGE,
@@ -106,7 +79,7 @@ console.log('d');
         thumbnail: thumbnail,
         createdAt: Date.now()
       });
-console.log('e');
+
       // Return metadata (without the full image data to save memory)
       return {
         id: mediaId,
@@ -224,24 +197,24 @@ console.log('e');
   async storeMedia(id, mediaData) {
     try {
       const { store, transaction } = await this.getStore('readwrite');
-console.log('0');
+
       return new Promise((resolve, reject) => {
         const request = store.put(mediaData, id);
-console.log('1');
+
         request.onsuccess = () => {
           console.log(`Successfully stored media with ID: ${id}`);
           resolve(true);
         };
-console.log('2');
+
         request.onerror = (event) => {
           console.error(`Error storing media (${id}):`, event.target.error);
           reject(event.target.error);
         };
-console.log('3');
+
         transaction.oncomplete = () => {
           resolve(true);
         };
-console.log('4');
+
         transaction.onerror = (event) => {
           console.error(`Transaction error while storing media (${id}):`, event.target.error);
           reject(event.target.error);
@@ -292,6 +265,50 @@ console.log('4');
     }
   }
   
+  /**
+   * Check whether media with the given ID already exists in IndexedDB
+   * @param {string} id - ID of the media to check
+   * @returns {Promise<boolean>} - Whether the media exists
+   */
+  async hasMedia(id) {
+    if (!id) return false;
+    try {
+      const { store } = await this.getStore('readonly');
+
+      return new Promise((resolve) => {
+        const request = store.getKey(id);
+        request.onsuccess = () => resolve(request.result !== undefined);
+        request.onerror = () => resolve(false);
+      });
+    } catch (error) {
+      console.error(`Error checking media existence (${id}):`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Store media received from another peer (full image + thumbnail).
+   * Skips storage if the media already exists locally.
+   * @param {string} id - Media ID (shared across peers)
+   * @param {Object} payload - { type, mimeType, thumbnail, fullImage }
+   * @returns {Promise<boolean>} - Whether the media is now stored
+   */
+  async storeReceivedMedia(id, payload) {
+    if (!id || !payload || !payload.fullImage) return false;
+
+    // Don't overwrite media we already have
+    if (await this.hasMedia(id)) return true;
+
+    return this.storeMedia(id, {
+      type: payload.type || MediaManager.MEDIA_TYPES.IMAGE,
+      mimeType: payload.mimeType || null,
+      thumbnail: payload.thumbnail || null,
+      fullImage: payload.fullImage,
+      size: payload.fullImage.length,
+      createdAt: Date.now()
+    });
+  }
+
   /**
    * Delete media from IndexedDB
    * @param {string} id - ID of the media to delete

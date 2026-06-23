@@ -1,12 +1,18 @@
 // Manages UI components, event listeners and display logic
 
+import { linkify, extractUrls, buildLinkPreview } from './link-preview.js';
+
 export class UIManager {
-  constructor(userManager, peerManager, tweetManager, storageManager, mediaManager) {
+  constructor(userManager, peerManager, tweetManager, storageManager, mediaManager, circleManager) {
     this.userManager = userManager;
     this.peerManager = peerManager;
     this.tweetManager = tweetManager;
     this.storageManager = storageManager;
 	this.mediaManager = mediaManager;
+	this.circleManager = circleManager;
+
+    // Currently selected circle for the feed view ('all' = everything)
+    this.activeCircleId = 'all';
 
     // DOM elements
     this.elements = {
@@ -33,7 +39,19 @@ export class UIManager {
       // Navigation
       feedTab: document.getElementById('feed-tab'),
       peersTab: document.getElementById('peers-tab'),
+      circlesTab: document.getElementById('circles-tab'),
       profileTab: document.getElementById('profile-tab'),
+
+      // Circles
+      circlesContainer: document.getElementById('circles-container'),
+      circlesSidebarList: document.getElementById('circles-sidebar-list'),
+      sidebarCircleName: document.getElementById('sidebar-circle-name'),
+      sidebarCreateCircle: document.getElementById('sidebar-create-circle'),
+      circlesManageList: document.getElementById('circles-manage-list'),
+      newCircleName: document.getElementById('new-circle-name'),
+      createCircleButton: document.getElementById('create-circle-button'),
+      castTarget: document.getElementById('cast-target'),
+      feedHeading: document.getElementById('feed-heading'),
 
       // Buttons
       createButton: document.getElementById('create-button'),
@@ -45,6 +63,7 @@ export class UIManager {
       connectButton: document.getElementById('connect-button'),
       deleteAccountButton: document.getElementById('delete-account-button'),
       deleteAllMessagesButton: document.getElementById('delete-all-messages-button'),
+      cleanupStorageButton: document.getElementById('cleanup-storage-button'),
 
       // Inputs
       usernameInput: document.getElementById('username'),
@@ -86,6 +105,13 @@ export class UIManager {
     this.createTweetWithMedia = this.createTweetWithMedia.bind(this);
     this.displayMediaPreview = this.displayMediaPreview.bind(this);
     this.renderMediaInTweet = this.renderMediaInTweet.bind(this);
+
+    // Bind circle-related methods
+    this.renderCirclesSidebar = this.renderCirclesSidebar.bind(this);
+    this.renderCirclesManage = this.renderCirclesManage.bind(this);
+    this.updateCastTarget = this.updateCastTarget.bind(this);
+    this.onCirclesChanged = this.onCirclesChanged.bind(this);
+    this.selectCircle = this.selectCircle.bind(this);
   }
 
   /**
@@ -104,6 +130,10 @@ export class UIManager {
     });
 
     this.elements.deleteAllMessagesButton.addEventListener('click', this.deleteAllMessages.bind(this));
+
+    if (this.elements.cleanupStorageButton) {
+      this.elements.cleanupStorageButton.addEventListener('click', this.cleanupStorage.bind(this));
+    }
 
     this.elements.generateButton.addEventListener('click', async () => {
       const username = this.elements.usernameInput.value.trim();
@@ -139,6 +169,10 @@ export class UIManager {
       this.elements.setupContainer.style.display = 'none';
       this.elements.appContainer.style.display = 'block';
       this.elements.currentUserElement.textContent = this.userManager.username;
+
+      // Render the feed (and any already-stored history) for the new session
+      this.renderTweets();
+      this.updatePeersList();
     });
 
     this.elements.loginContinueButton.addEventListener('click', async () => {
@@ -159,6 +193,12 @@ export class UIManager {
         this.elements.loginContainer.style.display = 'none';
         this.elements.appContainer.style.display = 'block';
         this.elements.currentUserElement.textContent = username;
+
+        // Make sure the stored message history is loaded and rendered
+        await this.tweetManager.loadTweets();
+        this.renderTweets();
+        this.updatePeersList();
+        this.updateProfileInfo();
       } catch (error) {
         console.error('Login error:', error);
         alert(`Error logging in: ${error.message}`);
@@ -174,10 +214,35 @@ export class UIManager {
       this.activateTab('peers');
     });
 
+    this.elements.circlesTab.addEventListener('click', () => {
+      this.activateTab('circles');
+      this.renderCirclesManage();
+    });
+
     this.elements.profileTab.addEventListener('click', () => {
       this.activateTab('profile');
       this.updateProfileInfo();
     });
+
+    // Circle creation (from the management tab and the sidebar)
+    if (this.elements.createCircleButton) {
+      this.elements.createCircleButton.addEventListener('click', () => {
+        this.handleCreateCircle(this.elements.newCircleName);
+      });
+    }
+    if (this.elements.sidebarCreateCircle) {
+      this.elements.sidebarCreateCircle.addEventListener('click', () => {
+        this.handleCreateCircle(this.elements.sidebarCircleName);
+      });
+      this.elements.sidebarCircleName.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') this.handleCreateCircle(this.elements.sidebarCircleName);
+      });
+    }
+
+    // Re-render circle UI whenever circles change
+    if (this.circleManager) {
+      this.circleManager.onCirclesUpdated = this.onCirclesChanged;
+    }
 
     this.elements.connectButton.addEventListener('click', this.connectToPeer);
 
@@ -200,12 +265,16 @@ export class UIManager {
 
     // Add media upload UI elements to the tweet form
     this.setupMediaUploadUI();
-    
+
     // Add the tweet button event listener here with the media-enabled function
     this.elements.tweetButton.addEventListener('click', this.createTweetWithMedia);
 
     // Add this call at the end of the existing setupEventListeners method
     this.setupCharacterCounter();
+
+    // Initialize circle UI (sidebar + cast-target indicator)
+    this.renderCirclesSidebar();
+    this.updateCastTarget();
   }
 
 	setupMediaUploadUI() {
@@ -374,11 +443,21 @@ export class UIManager {
       return;
     }
     
+    // Cast into the circle currently selected in the sidebar ('all' = public)
+    let circle = null;
+    if (this.activeCircleId && this.activeCircleId !== 'all' && this.circleManager) {
+      circle = this.circleManager.getCircle(this.activeCircleId);
+      if (circle && circle.peerIds.length === 0) {
+        if (!confirm(`The circle "${circle.name}" has no peers yet, so no one will receive this message. Post anyway?`)) {
+          return;
+        }
+      }
+    }
+
     try {
-      // Create the tweet with optional media
-	  console.log('test', content, this.pendingMediaFile);
-      await this.tweetManager.createTweet(content, this.pendingMediaFile);
-      console.log('test 2');
+      // Create the tweet with optional media, targeting the selected circle
+      await this.tweetManager.createTweet(content, this.pendingMediaFile, circle);
+
       // Clear the inputs
       this.elements.tweetContentInput.value = '';
       this.clearMediaPreview();
@@ -396,10 +475,12 @@ export class UIManager {
     // Reset all tabs
     this.elements.feedTab.classList.remove('active');
     this.elements.peersTab.classList.remove('active');
+    this.elements.circlesTab.classList.remove('active');
     this.elements.profileTab.classList.remove('active');
 
     this.elements.feedContainer.style.display = 'none';
     this.elements.peersContainer.style.display = 'none';
+    this.elements.circlesContainer.style.display = 'none';
     this.elements.profileContainer.style.display = 'none';
 
     // Activate the requested tab
@@ -411,6 +492,10 @@ export class UIManager {
       case 'peers':
         this.elements.peersTab.classList.add('active');
         this.elements.peersContainer.style.display = 'block';
+        break;
+      case 'circles':
+        this.elements.circlesTab.classList.add('active');
+        this.elements.circlesContainer.style.display = 'block';
         break;
       case 'profile':
         this.elements.profileTab.classList.add('active');
@@ -534,18 +619,37 @@ export class UIManager {
   }
 
   /**
-   * Render tweets in the UI
+   * Decide whether a tweet should appear in the currently-selected circle view.
+   * "all" shows everything; a circle shows messages authored by its members
+   * (plus your own messages).
+   */
+  tweetMatchesActiveCircle(tweet) {
+    if (this.activeCircleId === 'all' || !this.circleManager) return true;
+
+    const myPeerId = this.userManager.peerId;
+    if (tweet.authorId && tweet.authorId === myPeerId) return true;
+
+    const memberIds = this.circleManager.getMemberPeerIds(this.activeCircleId);
+    return !!(tweet.authorId && memberIds.includes(tweet.authorId));
+  }
+
+  /**
+   * Render tweets in the UI (filtered by the active circle)
    */
   renderTweets() {
     const tweetsContainer = this.elements.tweetsContainer;
     tweetsContainer.innerHTML = '';
 
-    // Get tweets from tweet manager
-    const tweets = this.tweetManager.getAllTweets();
+    this.updateFeedHeading();
+
+    // Get tweets from tweet manager, filtered by the active circle
+    const tweets = this.tweetManager.getAllTweets().filter(t => this.tweetMatchesActiveCircle(t));
 
     if (tweets.length === 0) {
       const noTweets = document.createElement('p');
-      noTweets.textContent = 'No spells cast yet. Be the first to cast a spell!';
+      noTweets.textContent = this.activeCircleId === 'all'
+        ? 'No spells cast yet. Be the first to cast a spell!'
+        : 'No messages from peers in this circle yet.';
       tweetsContainer.appendChild(noTweets);
       return;
     }
@@ -567,14 +671,24 @@ export class UIManager {
       tweetTime.textContent = this.formatTimestamp(tweet.timestamp);
 
       tweetHeader.appendChild(tweetUser);
+
+      // Show the audience badge for circle (narrow-cast) messages
+      if (tweet.circle) {
+        const badge = document.createElement('span');
+        badge.className = 'tweet-circle-badge';
+        badge.textContent = tweet.circle;
+        badge.title = `Sent to circle: ${tweet.circle}`;
+        tweetHeader.appendChild(badge);
+      }
+
       tweetHeader.appendChild(tweetTime);
 
       const tweetContent = document.createElement('div');
       tweetContent.className = 'tweet-content';
-      
-      // Only add text content if it exists
+
+      // Render text with clickable links (XSS-safe via linkify)
       if (tweet.content && tweet.content.trim()) {
-        tweetContent.textContent = tweet.content;
+        tweetContent.appendChild(linkify(tweet.content));
       }
 
       // Create media container
@@ -582,11 +696,14 @@ export class UIManager {
       tweetMediaContainer.className = 'tweet-media-container';
       tweetMediaContainer.style.marginTop = '10px';
       tweetMediaContainer.style.marginBottom = '10px';
-      
-      // Add media if present
+
+      // Add attached image media if present
       if (tweet.mediaId) {
         this.renderMediaInTweet(tweet, tweetMediaContainer);
       }
+
+      // Add a link preview for the first URL in the message (if any)
+      this.renderLinkPreview(tweet, tweetMediaContainer);
 
       const tweetActions = document.createElement('div');
       tweetActions.className = 'tweet-actions';
@@ -609,6 +726,276 @@ export class UIManager {
 
       tweetsContainer.appendChild(tweetElement);
     });
+  }
+
+  /**
+   * Render a preview card for the first previewable URL found in the message.
+   * Skipped when the message already has an attached image, to avoid clutter.
+   */
+  renderLinkPreview(tweet, container) {
+    if (!tweet.content || tweet.mediaId) return;
+
+    const urls = extractUrls(tweet.content);
+    if (urls.length === 0) return;
+
+    const preview = buildLinkPreview(urls[0]);
+    if (preview) {
+      container.appendChild(preview);
+    }
+  }
+
+  // ===================== Circles =====================
+
+  /**
+   * Called whenever circles change — refresh all circle-related UI.
+   */
+  onCirclesChanged() {
+    // If the active circle was deleted, fall back to "all"
+    if (this.activeCircleId !== 'all' && this.circleManager && !this.circleManager.getCircle(this.activeCircleId)) {
+      this.activeCircleId = 'all';
+    }
+    this.renderCirclesSidebar();
+    this.updateCastTarget();
+    if (this.elements.circlesContainer && this.elements.circlesContainer.style.display !== 'none') {
+      this.renderCirclesManage();
+    }
+    this.renderTweets();
+  }
+
+  /**
+   * Create a circle from a name input element.
+   */
+  handleCreateCircle(inputEl) {
+    if (!this.circleManager || !inputEl) return;
+    const name = inputEl.value.trim();
+    if (!name) {
+      alert('Please enter a circle name');
+      return;
+    }
+    try {
+      this.circleManager.createCircle(name);
+      inputEl.value = '';
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  /**
+   * Select a circle to filter the feed by, and switch to the feed.
+   */
+  selectCircle(circleId) {
+    this.activeCircleId = circleId;
+    this.renderCirclesSidebar();
+    this.updateCastTarget();
+    this.renderTweets();
+    this.activateTab('feed');
+  }
+
+  updateFeedHeading() {
+    const heading = this.elements.feedHeading;
+    if (!heading) return;
+
+    const circle = this.activeCircleId !== 'all' && this.circleManager
+      ? this.circleManager.getCircle(this.activeCircleId)
+      : null;
+
+    if (!circle) {
+      heading.textContent = '';
+      heading.style.display = 'none';
+      return;
+    }
+
+    heading.style.display = 'block';
+    const count = circle.peerIds.length;
+    heading.textContent = `Circle: ${circle.name} · ${count} peer${count === 1 ? '' : 's'}`;
+  }
+
+  /**
+   * Render the left sidebar list of circles.
+   */
+  renderCirclesSidebar() {
+    const list = this.elements.circlesSidebarList;
+    if (!list || !this.circleManager) return;
+    list.innerHTML = '';
+
+    const makeItem = (id, label, count) => {
+      const item = document.createElement('div');
+      item.className = 'circle-item' + (this.activeCircleId === id ? ' active' : '');
+
+      const name = document.createElement('span');
+      name.className = 'circle-item-name';
+      name.textContent = label;
+      item.appendChild(name);
+
+      if (count !== null) {
+        const badge = document.createElement('span');
+        badge.className = 'circle-item-count';
+        badge.textContent = count;
+        item.appendChild(badge);
+      }
+
+      item.addEventListener('click', () => this.selectCircle(id));
+      return item;
+    };
+
+    list.appendChild(makeItem('all', 'All Peers', null));
+
+    const circles = this.circleManager.getCircles();
+    circles.forEach(circle => {
+      list.appendChild(makeItem(circle.id, circle.name, circle.peerIds.length));
+    });
+
+    if (circles.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'sidebar-empty';
+      empty.textContent = 'No circles yet';
+      list.appendChild(empty);
+    }
+  }
+
+  /**
+   * Update the compose-box indicator showing where a Cast will go (the circle
+   * currently selected in the sidebar, or "All Peers").
+   */
+  updateCastTarget() {
+    const el = this.elements.castTarget;
+    if (!el) return;
+
+    let name = 'All Peers';
+    if (this.activeCircleId !== 'all' && this.circleManager) {
+      const circle = this.circleManager.getCircle(this.activeCircleId);
+      if (circle) {
+        name = circle.name;
+      } else {
+        this.activeCircleId = 'all';
+      }
+    }
+    el.textContent = `Casting to: ${name}`;
+  }
+
+  /**
+   * Render the Circles management tab (create/delete circles, add/remove peers).
+   */
+  renderCirclesManage() {
+    const container = this.elements.circlesManageList;
+    if (!container || !this.circleManager) return;
+    container.innerHTML = '';
+
+    const circles = this.circleManager.getCircles();
+    if (circles.length === 0) {
+      const empty = document.createElement('p');
+      empty.textContent = 'You have no circles yet. Create one above to group your peers.';
+      container.appendChild(empty);
+      return;
+    }
+
+    const knownPeers = this.getKnownPeers();
+
+    circles.forEach(circle => {
+      const card = document.createElement('div');
+      card.className = 'circle-card';
+
+      // Header with delete
+      const head = document.createElement('div');
+      head.className = 'circle-card-head';
+      const title = document.createElement('h4');
+      title.textContent = `${circle.name} (${circle.peerIds.length})`;
+      const del = document.createElement('button');
+      del.className = 'danger-button small-button';
+      del.textContent = 'Delete Circle';
+      del.addEventListener('click', () => {
+        if (confirm(`Delete circle "${circle.name}"? Your peers and messages are not affected.`)) {
+          this.circleManager.deleteCircle(circle.id);
+        }
+      });
+      head.appendChild(title);
+      head.appendChild(del);
+      card.appendChild(head);
+
+      // Members
+      const membersWrap = document.createElement('div');
+      membersWrap.className = 'circle-members';
+      if (circle.peerIds.length === 0) {
+        const none = document.createElement('p');
+        none.className = 'hint';
+        none.textContent = 'No peers in this circle yet. Add some below.';
+        membersWrap.appendChild(none);
+      } else {
+        circle.peerIds.forEach(peerId => {
+          const row = document.createElement('div');
+          row.className = 'circle-member-row';
+          const label = document.createElement('span');
+          const peer = knownPeers.find(p => p.peerId === peerId);
+          label.textContent = peer ? `${peer.username} (${peerId})` : peerId;
+          const remove = document.createElement('button');
+          remove.className = 'small-button danger-button';
+          remove.textContent = 'Remove';
+          remove.addEventListener('click', () => this.circleManager.removePeerFromCircle(circle.id, peerId));
+          row.appendChild(label);
+          row.appendChild(remove);
+          membersWrap.appendChild(row);
+        });
+      }
+      card.appendChild(membersWrap);
+
+      // Add-peer control
+      const addable = knownPeers.filter(p => !circle.peerIds.includes(p.peerId));
+      if (addable.length > 0) {
+        const addRow = document.createElement('div');
+        addRow.className = 'circle-add-row';
+        const select = document.createElement('select');
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Add a peer…';
+        select.appendChild(placeholder);
+        addable.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.peerId;
+          opt.textContent = `${p.username} (${p.peerId})`;
+          select.appendChild(opt);
+        });
+        select.addEventListener('change', () => {
+          if (select.value) {
+            this.circleManager.addPeerToCircle(circle.id, select.value);
+          }
+        });
+        addRow.appendChild(select);
+        card.appendChild(addRow);
+      } else {
+        const noPeers = document.createElement('p');
+        noPeers.className = 'hint';
+        noPeers.textContent = knownPeers.length === 0
+          ? 'Connect to peers first, then add them here.'
+          : 'All your known peers are already in this circle.';
+        card.appendChild(noPeers);
+      }
+
+      container.appendChild(card);
+    });
+  }
+
+  /**
+   * Known peers = union of connected + saved peers (deduped), excluding self.
+   * @returns {Array<{peerId: string, username: string}>}
+   */
+  getKnownPeers() {
+    const map = new Map();
+
+    this.peerManager.getAllConnections().forEach(conn => {
+      map.set(conn.peer, {
+        peerId: conn.peer,
+        username: (conn.metadata && conn.metadata.username) || 'Unknown user'
+      });
+    });
+
+    (this.peerManager.savedPeers || []).forEach(p => {
+      if (!map.has(p.peerId)) {
+        map.set(p.peerId, { peerId: p.peerId, username: p.username || 'Unknown user' });
+      }
+    });
+
+    map.delete(this.userManager.peerId);
+    return Array.from(map.values());
   }
 
   renderMediaInTweet(tweet, container) {
@@ -750,11 +1137,53 @@ export class UIManager {
   /**
    * Delete all messages from the local database
    */
-  deleteAllMessages() {
+  async deleteAllMessages() {
     if (confirm('Are you sure you want to delete all your messages? This will remove all spells from your local database but cannot remove them from other peers who have already received them.')) {
-      // Delete through tweet manager
-      const deletedCount = this.tweetManager.deleteAllTweets();
+      // Delete through tweet manager (async — await the count before showing it)
+      const deletedCount = await this.tweetManager.deleteAllTweets();
       alert(`Successfully deleted ${deletedCount} messages from your local database.`);
+    }
+  }
+
+  /**
+   * Clean up local storage: remove orphaned media (images no longer referenced
+   * by any message) and prune stale message-distribution tracking data.
+   * Does not delete any of the user's messages.
+   */
+  async cleanupStorage() {
+    if (!confirm('Clean up unused images and stale connection-tracking data from local storage? Your messages will not be deleted.')) {
+      return;
+    }
+
+    const button = this.elements.cleanupStorageButton;
+    const originalLabel = button ? button.textContent : null;
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Cleaning…';
+    }
+
+    try {
+      // Media still referenced by a stored tweet must be kept
+      const activeMediaIds = this.tweetManager.getAllTweets()
+        .filter(tweet => tweet.mediaId)
+        .map(tweet => tweet.mediaId);
+
+      const removedMedia = await this.mediaManager.cleanupOrphanedMedia(activeMediaIds);
+      const prunedRefs = this.tweetManager.pruneDistributionState();
+
+      alert(
+        `Cleanup complete.\n\n` +
+        `• Removed ${removedMedia} unused image(s)\n` +
+        `• Pruned ${prunedRefs} stale tracking reference(s)`
+      );
+    } catch (error) {
+      console.error('Storage cleanup failed:', error);
+      alert(`Storage cleanup failed: ${error.message}`);
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
     }
   }
 
@@ -857,6 +1286,11 @@ export class UIManager {
 
     // Update connection status
     this.updateConnectionStatus();
+
+    // Keep the circle management view in sync with peer changes (when visible)
+    if (this.elements.circlesContainer && this.elements.circlesContainer.style.display !== 'none') {
+      this.renderCirclesManage();
+    }
   }
 
   /**
@@ -960,6 +1394,10 @@ export class UIManager {
       removeButton.addEventListener('click', () => {
         if (confirm(`Are you sure you want to remove ${peerInfo.username || 'this peer'} from your saved peers?`)) {
           this.peerManager.removeOfflinePeer(peerInfo.peerId);
+          // Also drop the peer from any circles it belonged to
+          if (this.circleManager) {
+            this.circleManager.removePeerEverywhere(peerInfo.peerId);
+          }
         }
       });
       buttonContainer.appendChild(removeButton);

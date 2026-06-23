@@ -136,6 +136,16 @@ button:hover {
     margin-top: 30px;
 }
 
+.profile-actions button {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.profile-actions button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
 #tweet-form {
     margin-bottom: 20px;
 }
@@ -235,3 +245,282 @@ button:hover {
     padding: 5px;
     border-bottom: 1px solid #eee;
   }
+
+/* ===== Circles: layout + sidebar ===== */
+.app-body {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+#circles-sidebar {
+    width: 180px;
+    flex-shrink: 0;
+    border-right: 1px solid #e6ecf0;
+    padding-right: 12px;
+}
+
+#circles-sidebar h3 {
+    margin: 0 0 10px;
+}
+
+.app-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.circle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.circle-item:hover {
+    background-color: #f0f3f5;
+}
+
+.circle-item.active {
+    background-color: #e8f5fd;
+    color: #1da1f2;
+    font-weight: bold;
+}
+
+.circle-item-count {
+    background-color: #e1e8ed;
+    color: #657786;
+    border-radius: 10px;
+    padding: 0 8px;
+    font-size: 0.75em;
+    font-weight: normal;
+}
+
+.sidebar-empty {
+    color: #657786;
+    font-size: 0.9em;
+}
+
+.sidebar-new-circle {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+}
+
+.sidebar-new-circle input {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px;
+    border: 1px solid #cfd9de;
+    border-radius: 8px;
+}
+
+#sidebar-create-circle {
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+
+/* ===== Circles: compose audience + badges ===== */
+.tweet-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cast-target {
+    color: #657786;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.circle-add-row select {
+    padding: 6px 8px;
+    border: 1px solid #cfd9de;
+    border-radius: 8px;
+    background-color: white;
+}
+
+.tweet-form-actions #tweet-button {
+    margin-left: auto;
+}
+
+#feed-heading {
+    font-weight: bold;
+    color: #14171a;
+    margin-bottom: 12px;
+}
+
+.tweet-circle-badge {
+    background-color: #e8f5fd;
+    color: #1da1f2;
+    border-radius: 10px;
+    padding: 1px 8px;
+    font-size: 0.72em;
+    margin-left: 8px;
+}
+
+/* ===== Circles: management tab ===== */
+#create-circle-form {
+    margin-bottom: 20px;
+}
+
+#create-circle-form input {
+    padding: 8px;
+    border: 1px solid #cfd9de;
+    border-radius: 8px;
+    margin-right: 8px;
+}
+
+.hint {
+    color: #657786;
+    font-size: 0.85em;
+}
+
+.circle-card {
+    border: 1px solid #e6ecf0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+}
+
+.circle-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.circle-card-head h4 {
+    margin: 0;
+}
+
+.circle-member-row,
+.circle-add-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+}
+
+.circle-add-row select {
+    flex: 1;
+}
+
+/* ===== Link previews + links ===== */
+.tweet-link {
+    color: #1da1f2;
+    text-decoration: none;
+    word-break: break-word;
+}
+
+.tweet-link:hover {
+    text-decoration: underline;
+}
+
+.link-preview {
+    display: flex;
+    border: 1px solid #e1e8ed;
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    margin-top: 8px;
+    max-width: 100%;
+}
+
+.link-preview:hover {
+    background-color: #f7f9fa;
+}
+
+.link-preview-image {
+    border: none;
+}
+
+.link-preview-image img {
+    display: block;
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+}
+
+.link-preview-generic {
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
+}
+
+.link-preview-favicon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.link-preview-meta {
+    min-width: 0;
+}
+
+.link-preview-site {
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.link-preview-url {
+    color: #657786;
+    font-size: 0.8em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.link-preview-youtube {
+    flex-direction: column;
+}
+
+.link-preview-thumb {
+    position: relative;
+}
+
+.link-preview-thumb img {
+    display: block;
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+}
+
+.link-preview-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.link-preview-youtube .link-preview-meta {
+    padding: 10px;
+}
+
+/* ===== Responsive: stack sidebar on small screens ===== */
+@media (max-width: 600px) {
+    .app-body {
+        flex-direction: column;
+    }
+
+    #circles-sidebar {
+        width: auto;
+        border-right: none;
+        border-bottom: 1px solid #e6ecf0;
+        padding-right: 0;
+        padding-bottom: 12px;
+    }
+}

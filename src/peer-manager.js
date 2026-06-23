@@ -120,20 +120,20 @@ export class PeerManager {
   initializeWithFallbackServer() {
     return new Promise((resolve, reject) => {
       try {
-        console.log('Attempting to connect using fallback server...');
+        console.log('Attempting to connect using fallback configuration...');
 
-        // Fallback configuration using PeerJS Cloud service
+        // Fallback retries the default PeerJS cloud server with an alternate
+        // ICE/STUN configuration. (The previously hard-coded Heroku host has
+        // been retired, so we no longer point at dead infrastructure.)
         const fallbackConfig = {
-          secure: true,
-          host: 'peerjs-server.herokuapp.com',
-          port: 443,
-          path: '/',
           debug: 1,
           config: {
             iceServers: [
               { urls: 'stun:stun.l.google.com:19302' },
-              { urls: 'stun:global.stun.twilio.com:3478' }
-            ]
+              { urls: 'stun:global.stun.twilio.com:3478' },
+              { urls: 'stun:stun1.l.google.com:19302' }
+            ],
+            iceCandidatePoolSize: 10
           }
         };
 
@@ -411,15 +411,22 @@ export class PeerManager {
     this.handshakeCompleted.clear();
 
     this.usingFallbackServer = true;
-    this.updateStatus('Using fallback server for connections...');
+    this.updateStatus('Reconnecting with fallback configuration...');
 
-    // Configuration for fallback server
+    // Re-establish against the default PeerJS cloud server with an alternate
+    // ICE/STUN configuration, keeping the original ID for a consistent identity.
+    // (No custom signaling host is hard-coded here, since the previous
+    // placeholder host did not exist.)
     const fallbackConfig = {
-      host: 'fallback-signal.yourapp.com',
-      port: 443,
-      path: '/peerjs',
-      secure: true,
-      debug: 2
+      debug: 2,
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ],
+        iceCandidatePoolSize: 10
+      }
     };
 
     // Create new peer with the original ID for consistent identity

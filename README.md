@@ -1,266 +1,90 @@
-# SpellCast - Decentralized P2P Messaging
+# SpellCast — Your Conversations, Nobody Else's
 
-**SpellCast is a PROTOTYPE** of a fully decentralized, peer-to-peer Twitter-like application that runs entirely in your web browser. Share messages (called "spells") directly with your connections without relying on any central servers. Your data stays with you!
+**Cast spells, not tweets.** SpellCast is a Twitter-like social app with **no servers, no accounts, and no company in the middle**. Your messages (called "spells") travel directly between you and the people you connect with, and everything lives in your own browser. It's a single web page — nothing to install.
 
-![SpellCast Logo](docs/spellcast-p2p-visualization.svg)
+![SpellCast](docs/spellcast-p2p-visualization.svg)
 
-## Try out now!
+> ⚠️ SpellCast is an early **prototype**. It's a genuinely working, fun way to explore serverless social messaging — just don't rely on it for anything safety-critical yet. The honest details are in the [technical notes](docs/TECHNICAL.md#known-limitations--prototype-status).
 
-SpellCast on itch.io: [Spellcast](https://crankgaming.itch.io/spellcast)
+## Try it now
 
-## Key Features
+Try SpellCast: **[sience.github.io/spellcast](https://sience.github.io/spellcast)** — or [run your own copy](docs/TECHNICAL.md#running-locally).
 
-- **Fully Decentralized**: No central servers or databases - everything happens directly between peers
-- **Private & Secure**: WebRTC's built-in encryption secures all peer connections
-- **Browser-Based**: Runs entirely in your web browser - no installation required
-- **Cross-Platform**: Works on desktop and mobile browsers (iOS, Android, iPad)
-- **Persistent Storage**: Messages and connections are saved in your browser's storage
-- **Offline Capable**: Create messages offline and they'll be sent when you reconnect
-- **QR Code Sharing**: Connect with peers easily by scanning QR codes
+## Why SpellCast?
 
-## Security & Privacy
+Most social apps are free because *you* are the product. SpellCast takes the opposite approach:
 
-### Encrypted Communications
+- **No servers, no middleman.** There's no company database holding your posts. Messages go peer-to-peer, straight between browsers — nothing central to hack, sell, or shut down.
+- **No account, ever.** No email, no phone number, no password. You pick a username, get an ID, and you're in.
+- **Your data stays with you.** Posts, images, and contacts live in *your* browser — not in someone else's cloud.
+- **Private by design.** No ads, no tracking, no profiling. Connections are encrypted in transit (WebRTC/DTLS), and messages only travel to people in your own network.
+- **Works everywhere.** Any modern desktop or mobile browser — iPhone, iPad, Android, laptop. Connect with a friend in seconds by scanning a QR code.
+- **It even works offline.** Write now; your spells send themselves when you reconnect.
 
-SpellCast leverages WebRTC's built-in security mechanisms to protect your communications:
+## Features you'll actually use
 
-- **DTLS (Datagram Transport Layer Security)**: All data channels between peers are encrypted using DTLS, similar to HTTPS encryption for websites
-- **Peer Authentication**: During connection establishment, peers are authenticated to prevent man-in-the-middle attacks
-- **No Central Points of Compromise**: Without central servers storing messages, there are no honeypots for attackers to target
-- **Private Connection Model**: Messages only reach users you've directly or indirectly connected with
+- 📝 **Cast spells** — short posts shared instantly with everyone you're connected to
+- 🖼️ **Images & links** — attach a picture, or drop a link and get an automatic preview (images, YouTube, websites)
+- 🔵 **Circles** — group your peers (Friends, Work, Family…), filter your feed by circle, and cast to just one group when you want to
+- 🕸️ **Mesh delivery** — messages hop from friend to friend, reaching people you're not directly connected to
+- 🔄 **Pick up anywhere** — log back in on another device and your history syncs back from your peers
+- 📷 **QR connect** — show your code, scan a friend's, and you're talking
 
-### Privacy Benefits
+## How to use it
 
-- **No Account Required**: Create an identity without providing email or phone number
-- **No Tracking**: No central entity to track your connections or message content
-- **Local Storage Only**: Your data is stored exclusively in your browser's local storage
-- **Selective Sharing**: Messages only propagate to peers in your network
+### Create your identity
+1. Click **Create New Account**
+2. Choose a username others will see
+3. Click **Generate Your Credentials** — you'll get a peer ID (your address on the network)
+4. Keep that ID somewhere safe — it's how you log back in
+5. Click **Continue to App**
 
-## Mobile Compatibility
+### Connect with people
+- **By ID:** open the **Connect** tab, paste a friend's peer ID, and click **Connect**
+- **By QR code:** show your code from the **Profile** tab and have a friend scan it (or scan theirs)
+- SpellCast remembers your connections and reconnects automatically next time
 
-SpellCast works on all modern mobile browsers:
+### Cast a spell
+1. In the **Feed**, type your message (add an image or a link if you like)
+2. Press **Cast** — it's shared with your connected peers and appears in your feed
+3. The little **"Casting to"** label shows where it'll go — everyone, or the circle you've selected
 
-- **iOS (iPhone & iPad)**: Works in Safari, Chrome, and Firefox
-- **Android**: Compatible with Chrome, Firefox, and Samsung Internet
-- **Responsive Design**: UI adapts to different screen sizes
-- **Connection Persistence**: Reconnects automatically when switching networks
+### Organize with Circles
+Circles are your own private groups of peers — like lists.
+1. Create a circle from the sidebar (**+**) or the **Circles** tab
+2. In the **Circles** tab, add or remove peers
+3. Click a circle in the sidebar to filter your feed to just those people
+4. While a circle is selected, your casts go to that circle — pick **All Peers** to post to everyone
 
-Note that on iOS, background tabs may disconnect due to browser limitations, but will reconnect when you return to the tab.
+### Manage your stuff
+On the **Profile** tab you can show your QR code, **Clean Up Storage** (remove unused images and stale data), **Delete All Messages**, or **Delete Account** to wipe everything and start fresh.
 
-## Getting Started
+## Good to know
 
-### How to Run SpellCast
+SpellCast is an honest prototype, so a few things are worth understanding up front:
 
-1. Clone this repository or download the files
-   ```
-   git clone https://github.com/SiENcE/spellcast.git
-   ```
+- Your peer ID is both your address *and* your login — you share it to connect, but anyone who has it could log in as you. Treat identities as unverified.
+- Connections are encrypted in transit, but SpellCast doesn't add its own end-to-end message encryption yet, and **circles are for organizing, not for privacy**.
+- Deleting a message removes it from *your* device; copies others already received may reappear when you reconnect.
 
-2. Open the `index.html` file in a modern web browser
-   - For best results, use Chrome, Firefox, Edge, or Safari
-   - You can use a local server if you prefer:
-     ```
-     # Using Python
-     python -m http.server
-     
-     # Using Node.js with http-server
-     npx http-server
-     ```
+The full, frank list is in the [technical notes](docs/TECHNICAL.md#known-limitations--prototype-status).
 
-3. That's it! SpellCast runs entirely in your browser
+## For developers
 
-### Creating Your Account
-
-1. Click the "Create New Account" button
-2. Enter a username that others will see
-3. Click "Generate Your Credentials"
-4. Save your peer ID securely - you'll need it to log in from other devices
-5. Click "Continue to App"
-
-### Connecting with Peers
-
-There are several ways to connect with other SpellCast users:
-
-#### Direct Connection
-
-1. Go to the "Connect" tab
-2. Enter the peer ID of the person you want to connect with
-3. Click "Connect"
-
-#### QR Code Sharing
-
-1. Go to your "Profile" tab to display your QR code
-2. Have another SpellCast user scan your code using their device's camera
-3. Alternatively, scan their QR code using a QR code scanner app
-
-#### Reconnecting
-
-SpellCast automatically saves your connections and will try to reconnect to known peers when you restart the app.
-
-### Casting Spells (Sending Messages)
-
-1. In the "Feed" tab, type your message in the text area
-2. Click "Cast" to send your message
-3. Your message will be sent to all connected peers and displayed in your feed
-
-### Managing Your Connections
-
-1. Go to the "Connect" tab to see all your connections
-2. Online peers will appear at the top
-3. You can disconnect from a peer by clicking the "Disconnect" button
-4. Remove saved peers by clicking "Remove"
-
-### Profile Management
-
-1. Go to the "Profile" tab
-2. Here you can see your username and peer ID
-3. Share your peer ID or QR code with others to connect
-4. Use the "Delete All Messages" button to clear your local message history
-5. Use the "Delete Account" button to completely reset your account
-
-## How Multi-Peer Networking Works
-
-SpellCast creates a mesh network where:
-
-1. **Direct Connections**: You establish WebRTC connections with peers you know
-2. **Message Propagation**: When you send a message:
-   - It's stored in your local browser storage
-   - It's sent to all your directly connected peers
-   - They store it and forward it to their peers (who aren't already connected to you)
-   - The system tracks which peers have received each message to prevent duplicates
-3. **Offline Handling**: If a peer is offline, messages for them are queued and sent when they reconnect
-
-This distributed approach means there's no central point of failure, and messages can still reach their destination through alternative paths in the network.
-
-## For Developers
-
-### Project Structure
-
-SpellCast is built with vanilla JavaScript and uses several key libraries:
-
-- **PeerJS**: Handles WebRTC connections for peer-to-peer communication
-- **IndexedDB**: Stores messages, media, and connection data persistently
-- **QR Code JS**: Generates QR codes for easy peer ID sharing
-
-### Key Components
-
-The application is structured into several manager classes:
-
-- **SpellCastApp**: Main application controller
-- **UserManager**: Handles user credentials and authentication
-- **PeerManager**: Manages peer connections and communication
-- **TweetManager**: Handles message creation, storage, and distribution
-- **UIManager**: Controls the user interface and event handling
-- **StorageManager**: Manages persistent storage with IndexedDB
-- **MediaManager**: -- unused, unfinished!! --
-- **RateLimiter**: Prevents spam and abuse
-
-### P2P Message Distribution System
-
-SpellCast uses a sophisticated message distribution system:
-
-1. When a message is created, it's stored locally and broadcast to all connected peers
-2. The system tracks which peers have received which messages
-3. When new peers connect, only messages they haven't seen are sent
-4. This ensures efficient distribution without flooding the network
-
-```javascript
-// Simplified example of the message distribution tracking
-{
-  tweetRecipients: {
-    "message-123": ["peer1", "peer3"], // Peers that have this message
-    "message-456": ["peer1", "peer2", "peer3"]
-  },
-  unsentTweets: {
-    "peer1": [], // This peer has all messages
-    "peer2": ["message-123"], // This peer needs message-123
-    "peer3": []
-  }
-}
-```
-
-### WebRTC Encryption
-
-SpellCast relies on WebRTC's built-in security features:
-
-1. **DTLS Encryption**: All data channels are encrypted using Datagram Transport Layer Security
-2. **Connection Security**:
-   - Each connection begins with a secure handshake
-   - Communication is encrypted end-to-end between directly connected peers
-   - Intermediary peers cannot read messages they relay if implemented correctly
-
-**Remember that while the transport is secure, the application itself doesn't implement additional encryption layers. For more security, you could add end-to-end encryption at the message level.**
-
-### Storage Architecture
-
-SpellCast uses IndexedDB for persistent storage with a fallback to localStorage:
-
-- **User credentials**: Username and peer ID
-- **Messages**: All created and received messages
-- **Media**: Images attached to messages (stored as base64 data)
-- **Peers**: Known connections and their status
-- **Distribution state**: Which peers have received which messages
-
-### Connection Quality Monitoring
-
-SpellCast actively monitors connection quality:
-
-1. Regular pings are sent to connected peers
-2. Response times are measured to determine connection quality
-3. Failed connections trigger automatic reconnection attempts
-4. Connection quality is displayed in the UI with simple indicators
-
-### How to Contribute
-
-We welcome contributions to SpellCast! Here's how you can help:
-
-1. **Fork the repository**: Create your own copy of the project
-2. **Make your changes**: Add features or fix bugs
-3. **Test thoroughly**: Ensure your changes work as expected
-4. **Submit a pull request**: Share your improvements with us
-
-#### Development Setup
-
-1. Clone the repository
-   ```
-   git clone https://github.com/SiENcE/spellcast.git
-   ```
-
-2. Set up a local development server
-   ```
-   # Using Python
-   python -m http.server
-   
-   # Using Node.js with http-server
-   npx http-server
-   ```
-
-3. Open `http://localhost:8000` (or whatever port your server uses)
-
-4. Make changes and refresh the browser to see them
-
-#### Coding Guidelines
-
-- Use clear, descriptive variable and function names
-- Add comments for complex logic
-- Maintain the existing code structure and patterns
-- Write clean, modular code
-- Test your changes across different browsers
+SpellCast is vanilla JavaScript with no build step. The architecture, networking internals, storage model, how to run it locally, and contribution guidelines all live in **[docs/TECHNICAL.md](docs/TECHNICAL.md)**.
 
 ## License
 
-This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License - see the [LICENSE](LICENSE) file for details.
+Creative Commons Attribution-NonCommercial 4.0 International — see [LICENSE](LICENSE).
 
-This means:
-- You are free to share (copy and redistribute) and adapt (remix, transform, and build upon) this material
-- You must give appropriate credit and indicate if changes were made
-- You may not use the material for commercial purposes
-- No additional restrictions — you may not apply legal terms or technological measures that legally restrict others from doing anything the license permits
+- Share and adapt freely, with credit
+- Indicate any changes you make
+- Non-commercial use only
 
 ## Acknowledgments
 
-- [PeerJS](https://peerjs.com/) for the WebRTC implementation
-- [QRCode.js](https://github.com/davidshimjs/qrcodejs) for QR code generation
+- [PeerJS](https://peerjs.com/) — WebRTC peer connections
+- [QRCode.js](https://github.com/davidshimjs/qrcodejs) — QR code generation
 
 ---
 

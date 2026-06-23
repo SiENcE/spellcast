@@ -15,8 +15,9 @@ export class TweetManager {
 		this.MAX_TWEETS_STORAGE = 1000; // Maximum number of tweets to store locally
 		this.MAX_MEDIA_PER_TWEET = 1; // Start with just one attachment per message
 		this.VALID_TWEET_PROPS = [
-		  'id', 'username', 'content', 'timestamp', 'mediaId', 'mediaThumbnail', 'mediaType'
-		]; // Updated valid properties
+		  'id', 'username', 'content', 'timestamp', 'mediaId', 'mediaThumbnail', 'mediaType',
+		  'authorId', 'circle'
+		]; // Updated valid properties (authorId = author's peer ID, circle = audience name)
 
 		// Add rate limiter instance
 		this.rateLimiter = new RateLimiter();
@@ -38,6 +39,7 @@ export class TweetManager {
 		this.peerManager.registerMessageHandler('tweet_ack', this.handleTweetAckMessage.bind(this));
 		this.peerManager.registerMessageHandler('all_tweets', this.handleAllTweetsMessage.bind(this));
 		this.peerManager.registerMessageHandler('bulk_tweet_ack', this.handleBulkTweetAckMessage.bind(this));
+		this.peerManager.registerMessageHandler('sync_request', this.handleSyncRequest.bind(this));
 
 		// Bind methods
 		this.loadTweets = this.loadTweets.bind(this);
@@ -48,13 +50,15 @@ export class TweetManager {
 		this.addTweet = this.addTweet.bind(this);
 		this.deleteTweet = this.deleteTweet.bind(this);
 		this.sendSelectiveTweets = this.sendSelectiveTweets.bind(this);
+		this.sendTweetsToPeer = this.sendTweetsToPeer.bind(this);
+		this.requestSync = this.requestSync.bind(this);
+		this.handleSyncRequest = this.handleSyncRequest.bind(this);
 		this.broadcastTweet = this.broadcastTweet.bind(this);
 		this.validateTweet = this.validateTweet.bind(this);
 		this.generateUniqueId = this.generateUniqueId.bind(this);
 
-		// On new peer connection, send missing tweets
+		// On new peer connection, sync messages in both directions
 		this.peerManager.onPeerConnected((conn) => {
-			// Check if this is a new connection or reconnection
 			const peerId = conn.peer;
 
 			// Create an unsent tweets entry for this peer if it doesn't exist
@@ -62,17 +66,13 @@ export class TweetManager {
 				this.unsentTweets[peerId] = [];
 			}
 
-			// Find any tweets this peer hasn't received yet
-			this.tweets.forEach(tweet => {
-				if (!this.tweetRecipients[tweet.id] || !this.tweetRecipients[tweet.id].includes(peerId)) {
-					if (!this.unsentTweets[peerId].includes(tweet.id)) {
-						this.unsentTweets[peerId].push(tweet.id);
-					}
-				}
-			});
-
-			// Wait a bit for handshake to complete, then send unsent tweets
-			setTimeout(() => this.sendSelectiveTweets(conn), 1000);
+			// Wait a bit for the handshake to settle, then ask this peer to send
+			// us anything we're missing. The peer does the same from its side, so
+			// the sync is mutual and complete — a freshly logged-in user (even one
+			// who cleared local data) gets the full history + images back. Using a
+			// pull avoids double-transferring images and doesn't rely on local
+			// recipient tracking that may be stale across sessions.
+			setTimeout(() => this.requestSync(conn), 1000);
 		});
 	}
 
@@ -137,10 +137,12 @@ export class TweetManager {
 	/**
 	 * Create a new tweet
 	 * @param {string} content - Tweet content
-	 * @mediaId {string} content - Media file
+	 * @param {File} [mediaFile] - Optional image file
+	 * @param {Object} [circle] - Optional target circle { id, name, peerIds } to
+	 *        narrow-cast to. When omitted, the message is public (broadcast to all).
 	 * @returns {string} - Tweet ID
 	 */
-	  async createTweet(content, mediaFile = null) {
+	  async createTweet(content, mediaFile = null, circle = null) {
 
 		if (!content && !mediaFile) {
 		  throw new Error('Tweet must have content or media');
@@ -155,7 +157,7 @@ export class TweetManager {
 		let mediaId = null;
 		let mediaThumbnail = null;
 		let mediaType = null;
-console.log('JA 2');
+
 		if (mediaFile) {
 		  try {
 			const mediaData = await this.mediaManager.processAndStoreImage(mediaFile);
@@ -167,7 +169,7 @@ console.log('JA 2');
 			throw new Error(`Failed to process media: ${error.message}`);
 		  }
 		}
-console.log('NEIN 1');
+
 		// Rate limiting check (existing code)
 		const isAllowed = this.rateLimiter.isAllowed(
 		  'message',
@@ -182,16 +184,24 @@ console.log('NEIN 1');
 		  throw new Error(`Message rate limit exceeded. Please wait ${secondsUntil} seconds before sending more messages.`);
 		}
 
-		const { username } = this.userManager.getUserInfo();
+		const { username, peerId } = this.userManager.getUserInfo();
 		const timestamp = Date.now();
-		const connectedPeerIds = this.peerManager.getConnectedPeerIds();
 		const tweetId = this.generateUniqueId(username, content, timestamp);
 
-		// Add tweet with media information
-		this.addTweet(username, content, timestamp, connectedPeerIds, tweetId, mediaId, mediaThumbnail, mediaType);
+		// Narrow-cast target (a circle) vs public broadcast
+		const circleName = circle ? circle.name : null;
+		const targetPeerIds = circle ? circle.peerIds : null;
 
-		// Broadcast to connected peers
-		this.broadcastTweet(content, timestamp, tweetId, mediaId, mediaThumbnail, mediaType);
+		// Recipients we attempt to deliver to immediately
+		const connectedPeerIds = targetPeerIds
+			? this.peerManager.getConnectedPeerIds().filter(id => targetPeerIds.includes(id))
+			: this.peerManager.getConnectedPeerIds();
+
+		// Add tweet locally (with author id and, for circle posts, the audience name)
+		this.addTweet(username, content, timestamp, connectedPeerIds, tweetId, mediaId, mediaThumbnail, mediaType, peerId, circleName);
+
+		// Send to peers (awaits loading the full image for transfer)
+		await this.broadcastTweet(content, timestamp, tweetId, mediaId, mediaThumbnail, mediaType, peerId, circleName, targetPeerIds);
 
 		// Notify listeners
 		if (typeof this.onTweetsUpdated === 'function') {
@@ -213,7 +223,7 @@ console.log('NEIN 1');
 	 * @param {string} [mediaType]
 	 * @returns {string} - Tweet ID
 	 */
-	  addTweet(username, content, timestamp, recipients = null, id = null, mediaId = null, mediaThumbnail = null, mediaType = null) {
+	  addTweet(username, content, timestamp, recipients = null, id = null, mediaId = null, mediaThumbnail = null, mediaType = null, authorId = null, circle = null) {
 		const tweetId = id || this.generateUniqueId(username, content, timestamp);
 
 		// Check if we already have this tweet
@@ -223,17 +233,25 @@ console.log('NEIN 1');
 		}
 
 		// Create new tweet object with media info
-		const tweet = { 
-		  username, 
-		  content, 
-		  timestamp, 
-		  id: tweetId 
+		const tweet = {
+		  username,
+		  content,
+		  timestamp,
+		  id: tweetId
 		};
 
 		if (mediaId) {
 		  tweet.mediaId = mediaId;
 		  tweet.mediaThumbnail = mediaThumbnail;
 		  tweet.mediaType = mediaType;
+		}
+
+		// Author peer ID (used for circle/feed filtering) and circle audience name
+		if (authorId) {
+		  tweet.authorId = authorId;
+		}
+		if (circle) {
+		  tweet.circle = circle;
 		}
 
 		// Validate tweet before adding
@@ -292,30 +310,41 @@ console.log('NEIN 1');
 	 */
 	  async deleteTweet(tweetId) {
 		const initialLength = this.tweets.length;
-		
+
 		// Find the tweet to delete
 		const tweetToDelete = this.tweets.find(tweet => tweet.id === tweetId);
-		
-		// Check if the tweet has media
+
+		// Check if the tweet has media (only delete it if no other tweet uses it)
 		if (tweetToDelete && tweetToDelete.mediaId) {
-		  try {
-			// Delete the media
-			await this.mediaManager.deleteMedia(tweetToDelete.mediaId);
-		  } catch (error) {
-			console.error(`Error deleting media for tweet ${tweetId}:`, error);
-			// Continue with tweet deletion even if media deletion fails
+		  const stillReferenced = this.tweets.some(
+			t => t.id !== tweetId && t.mediaId === tweetToDelete.mediaId
+		  );
+		  if (!stillReferenced) {
+			try {
+			  await this.mediaManager.deleteMedia(tweetToDelete.mediaId);
+			} catch (error) {
+			  console.error(`Error deleting media for tweet ${tweetId}:`, error);
+			  // Continue with tweet deletion even if media deletion fails
+			}
 		  }
 		}
-		
+
 		// Remove the tweet
 		this.tweets = this.tweets.filter(tweet => tweet.id !== tweetId);
-		
+
 		if (this.tweets.length !== initialLength) {
+		  // Clean up distribution tracking so it doesn't leak after deletion
+		  delete this.tweetRecipients[tweetId];
+		  Object.keys(this.unsentTweets).forEach(peerId => {
+			this.unsentTweets[peerId] = this.unsentTweets[peerId].filter(id => id !== tweetId);
+		  });
+
 		  // Successfully removed a tweet
 		  this.saveTweets();
+		  this.saveMessageDistributionState();
 		  return true;
 		}
-		
+
 		return false;
 	  }
 
@@ -339,6 +368,168 @@ console.log('NEIN 1');
 	  }
 
 	/**
+	 * Load the full-size image data for a media ID from local IndexedDB so it
+	 * can be transmitted to peers. Returns null if unavailable.
+	 * @param {string} mediaId
+	 * @returns {Promise<string|null>} - Base64 data URL of the full image
+	 */
+	async getFullImageData(mediaId) {
+		if (!mediaId) return null;
+		try {
+			// Absence is expected (e.g. when relaying a thumbnail-only tweet whose
+			// full image we never stored), so skip the lookup rather than throwing.
+			if (!(await this.mediaManager.hasMedia(mediaId))) return null;
+
+			const media = await this.mediaManager.getMedia(mediaId, true);
+			return media && media.fullImage ? media.fullImage : null;
+		} catch (error) {
+			console.error(`Error loading full image for transfer (${mediaId}):`, error);
+			return null;
+		}
+	}
+
+	/**
+	 * Build the wire payload for a tweet, attaching the full image when the
+	 * tweet has media so receivers can store it in their own IndexedDB.
+	 * @param {Object} tweet - A stored tweet object
+	 * @returns {Promise<Object>} - Payload ready to send (without a `type`)
+	 */
+	async buildTweetPayload(tweet) {
+		const payload = {
+			username: tweet.username,
+			content: tweet.content,
+			timestamp: tweet.timestamp,
+			id: tweet.id
+		};
+
+		if (tweet.authorId) {
+			payload.authorId = tweet.authorId;
+		}
+		if (tweet.circle) {
+			payload.circle = tweet.circle;
+		}
+
+		if (tweet.mediaId) {
+			payload.mediaId = tweet.mediaId;
+			payload.mediaThumbnail = tweet.mediaThumbnail;
+			payload.mediaType = tweet.mediaType;
+
+			const fullImage = await this.getFullImageData(tweet.mediaId);
+			if (fullImage) {
+				payload.fullImage = fullImage;
+			}
+		}
+
+		return payload;
+	}
+
+	/**
+	 * Persist media that arrived inside a tweet payload into local IndexedDB.
+	 * @param {Object} data - Incoming tweet payload (may contain fullImage)
+	 */
+	async storeIncomingMedia(data) {
+		if (!data || !data.mediaId || !data.fullImage) return;
+		try {
+			await this.mediaManager.storeReceivedMedia(data.mediaId, {
+				type: data.mediaType,
+				mimeType: data.mediaMimeType || null,
+				thumbnail: data.mediaThumbnail || null,
+				fullImage: data.fullImage
+			});
+		} catch (error) {
+			console.error('Error storing incoming media:', error);
+		}
+	}
+
+	/**
+	 * Forward a freshly received tweet to our other connected peers (multi-hop
+	 * relay). Peers that already have the tweet (per recipient tracking) and the
+	 * peer we received it from are skipped, which prevents loops/storms.
+	 * @param {Object} tweet - The stored tweet object to relay
+	 * @param {string} fromPeerId - The peer we received this tweet from
+	 */
+	async relayTweet(tweet, fromPeerId) {
+		const tweetId = tweet.id;
+
+		// Circle (narrow-cast) messages are delivered only to their audience and
+		// are deliberately not relayed across the wider mesh.
+		if (tweet.circle) {
+			return;
+		}
+
+		const relayData = await this.buildTweetPayload(tweet);
+		relayData.type = 'tweet';
+
+		const connections = this.peerManager.getAllConnections();
+
+		connections.forEach(conn => {
+			// Never echo back to the sender
+			if (conn.peer === fromPeerId) return;
+
+			// Skip peers already known to have this tweet
+			if (this.tweetRecipients[tweetId] && this.tweetRecipients[tweetId].includes(conn.peer)) {
+				return;
+			}
+
+			try {
+				conn.send(relayData);
+
+				if (!this.tweetRecipients[tweetId]) {
+					this.tweetRecipients[tweetId] = [];
+				}
+				if (!this.tweetRecipients[tweetId].includes(conn.peer)) {
+					this.tweetRecipients[tweetId].push(conn.peer);
+				}
+
+				if (this.unsentTweets[conn.peer]) {
+					this.unsentTweets[conn.peer] = this.unsentTweets[conn.peer].filter(id => id !== tweetId);
+				}
+
+				console.log(`Relayed tweet ${tweetId} to peer ${conn.peer}`);
+			} catch (error) {
+				console.error(`Failed to relay tweet to peer ${conn.peer}:`, error);
+
+				if (!this.unsentTweets[conn.peer]) {
+					this.unsentTweets[conn.peer] = [];
+				}
+				if (!this.unsentTweets[conn.peer].includes(tweetId)) {
+					this.unsentTweets[conn.peer].push(tweetId);
+				}
+			}
+		});
+
+		this.saveMessageDistributionState();
+	}
+
+	/**
+	 * Remove distribution-tracking entries that reference tweets we no longer
+	 * store. Returns the number of stale references removed.
+	 * @returns {number}
+	 */
+	pruneDistributionState() {
+		const existingIds = new Set(this.tweets.map(t => t.id));
+		let pruned = 0;
+
+		// Drop recipient records for tweets that no longer exist
+		Object.keys(this.tweetRecipients).forEach(tweetId => {
+			if (!existingIds.has(tweetId)) {
+				delete this.tweetRecipients[tweetId];
+				pruned++;
+			}
+		});
+
+		// Drop unsent references to tweets that no longer exist
+		Object.keys(this.unsentTweets).forEach(peerId => {
+			const before = this.unsentTweets[peerId].length;
+			this.unsentTweets[peerId] = this.unsentTweets[peerId].filter(id => existingIds.has(id));
+			pruned += before - this.unsentTweets[peerId].length;
+		});
+
+		this.saveMessageDistributionState();
+		return pruned;
+	}
+
+	/**
 	 * Delete all tweets from the local database
 	 * @returns {number} - Number of tweets deleted
 	 */
@@ -357,15 +548,13 @@ console.log('NEIN 1');
 		this.tweetRecipients = {};
 		this.unsentTweets = {};
 		
-		// Delete associated media
-		if (mediaIds.length > 0) {
+		// Delete associated media (resilient: one failure doesn't abort the rest)
+		for (const mediaId of mediaIds) {
 		  try {
-			for (const mediaId of mediaIds) {
-			  await this.mediaManager.deleteMedia(mediaId);
-			}
+			await this.mediaManager.deleteMedia(mediaId);
 		  } catch (error) {
-			console.error('Error deleting media during tweet purge:', error);
-			// Continue even if media deletion fails
+			console.error(`Error deleting media ${mediaId} during tweet purge:`, error);
+			// Continue even if a single media deletion fails
 		  }
 		}
 		
@@ -390,7 +579,7 @@ console.log('NEIN 1');
 	 * @param {string} mediaThumbnail
 	 * @param {string} mediaType
 	 */
-	  broadcastTweet(content, timestamp, tweetId, mediaId = null, mediaThumbnail = null, mediaType = null) {
+	  async broadcastTweet(content, timestamp, tweetId, mediaId = null, mediaThumbnail = null, mediaType = null, authorId = null, circleName = null, targetPeerIds = null) {
 		const { username } = this.userManager.getUserInfo();
 
 		const tweetData = {
@@ -401,15 +590,33 @@ console.log('NEIN 1');
 		  id: tweetId
 		};
 
-		// Add media data if present
+		if (authorId) {
+		  tweetData.authorId = authorId;
+		}
+		// Circle posts carry the audience name and are sent only to those peers;
+		// they are intentionally not multi-hop relayed or bulk-synced.
+		if (circleName) {
+		  tweetData.circle = circleName;
+		}
+
+		// Add media data if present, including the full image so receiving peers
+		// can persist it in their own IndexedDB (not just the thumbnail).
 		if (mediaId) {
 		  tweetData.mediaId = mediaId;
 		  tweetData.mediaThumbnail = mediaThumbnail;
 		  tweetData.mediaType = mediaType;
+
+		  const fullImage = await this.getFullImageData(mediaId);
+		  if (fullImage) {
+			tweetData.fullImage = fullImage;
+		  }
 		}
 
-		// Send to all currently connected peers
-		const connections = this.peerManager.getAllConnections();
+		// Send to all connected peers, or only the targeted circle members
+		const allConnections = this.peerManager.getAllConnections();
+		const connections = targetPeerIds
+		  ? allConnections.filter(conn => targetPeerIds.includes(conn.peer))
+		  : allConnections;
 		connections.forEach(conn => {
 			try {
 				conn.send(tweetData);
@@ -465,12 +672,16 @@ console.log('NEIN 1');
 
 		// Check media properties if mediaId is present
 		if (tweet.mediaId) {
-		  if (typeof tweet.mediaId !== 'string' || 
+		  if (typeof tweet.mediaId !== 'string' ||
 			  typeof tweet.mediaThumbnail !== 'string' ||
 			  typeof tweet.mediaType !== 'string') {
 			return false;
 		  }
 		}
+
+		// Optional author id / circle audience must be strings if present
+		if (tweet.authorId !== undefined && typeof tweet.authorId !== 'string') return false;
+		if (tweet.circle !== undefined && typeof tweet.circle !== 'string') return false;
 
 		// Check for unexpected properties
 		const tweetProps = Object.keys(tweet);
@@ -486,7 +697,10 @@ console.log('NEIN 1');
 	  }
 
 	/**
-	 * Generate a unique ID for a tweet using cryptographic hash
+	 * Generate a unique ID for a tweet.
+	 * Uses a fast, non-cryptographic 32-bit string hash (djb2-style) combined
+	 * with the username and timestamp. This is for de-duplication only, not
+	 * security — do not treat the ID as unguessable or collision-proof.
 	 * @param {string} username - Author username
 	 * @param {string} content - Tweet content
 	 * @param {number} timestamp - Creation timestamp
@@ -496,7 +710,7 @@ console.log('NEIN 1');
 		// Create a string to hash that includes all relevant data
 		const dataToHash = `${username}-${timestamp}-${content}-${this.userManager.peerId}`;
 
-		// Generate a SHA-256 like hash (simplified for browser compatibility)
+		// Simple 32-bit rolling string hash (not cryptographic)
 		let hash = 0;
 		for (let i = 0; i < dataToHash.length; i++) {
 			const char = dataToHash.charCodeAt(i);
@@ -510,22 +724,78 @@ console.log('NEIN 1');
 	}
 
 	/**
-	 * Send tweets that a peer hasn't received yet
+	 * Ask a peer to send us any messages we don't already have (pull-based sync).
+	 * We tell the peer which tweet IDs we already hold; the peer replies with the
+	 * rest (including images). Both peers do this on connect, so the sync is
+	 * mutual and does NOT depend on (possibly stale) local recipient tracking —
+	 * this is what lets a peer who cleared their data get everything back.
+	 * @param {Object} conn - PeerJS connection
+	 */
+	requestSync(conn) {
+		try {
+			conn.send({
+				type: 'sync_request',
+				knownIds: this.tweets.map(tweet => tweet.id)
+			});
+			console.log(`Requested sync from peer ${conn.peer} (we know ${this.tweets.length} tweets)`);
+		} catch (error) {
+			console.error(`Failed to send sync_request to peer ${conn.peer}:`, error);
+		}
+	}
+
+	/**
+	 * Handle a sync request: send the peer every tweet it doesn't already have.
+	 * @param {Object} data - { knownIds: string[] }
+	 * @param {Object} conn - PeerJS connection
+	 */
+	handleSyncRequest(data, conn) {
+		const knownIds = Array.isArray(data.knownIds) ? new Set(data.knownIds) : new Set();
+		const ourIds = new Set(this.tweets.map(tweet => tweet.id));
+
+		// The requester told us what they already have — record that (only for
+		// tweets we actually hold) so we don't keep queueing those for them.
+		knownIds.forEach(id => {
+			if (!ourIds.has(id)) return;
+			if (!this.tweetRecipients[id]) {
+				this.tweetRecipients[id] = [];
+			}
+			if (!this.tweetRecipients[id].includes(conn.peer)) {
+				this.tweetRecipients[id].push(conn.peer);
+			}
+			if (this.unsentTweets[conn.peer]) {
+				this.unsentTweets[conn.peer] = this.unsentTweets[conn.peer].filter(tid => tid !== id);
+			}
+		});
+
+		// Only public tweets are bulk-synced; circle (narrow-cast) messages stay
+		// within the audience they were originally sent to.
+		const tweetsToSend = this.tweets.filter(tweet => !tweet.circle && !knownIds.has(tweet.id));
+
+		if (tweetsToSend.length === 0) {
+			console.log(`Peer ${conn.peer} is already up to date (${knownIds.size} tweets)`);
+			this.saveMessageDistributionState();
+			return;
+		}
+
+		console.log(`Peer ${conn.peer} is missing ${tweetsToSend.length} tweets — sending them`);
+		this.sendTweetsToPeer(conn, tweetsToSend);
+		this.saveMessageDistributionState();
+	}
+
+	/**
+	 * Send tweets that a peer hasn't received yet, based on local tracking.
+	 * Kept for compatibility; the pull-based requestSync/handleSyncRequest path
+	 * is the primary sync mechanism on connect.
 	 * @param {Object} conn - PeerJS connection
 	 */
 	sendSelectiveTweets(conn) {
-		// Get peer ID
 		const peerId = conn.peer;
 
 		// Determine which tweets this peer hasn't received yet
 		let unsentTweetIds = [];
-
-		// Check the unsent tweets list for this peer
 		if (this.unsentTweets[peerId] && this.unsentTweets[peerId].length > 0) {
 			unsentTweetIds = [...this.unsentTweets[peerId]];
 		}
-
-		// Also check all tweets to see if this peer is in their recipients list
 		this.tweets.forEach(tweet => {
 			if (!this.tweetRecipients[tweet.id] || !this.tweetRecipients[tweet.id].includes(peerId)) {
 				if (!unsentTweetIds.includes(tweet.id)) {
@@ -539,29 +809,48 @@ console.log('NEIN 1');
 			return;
 		}
 
-		console.log(`Sending ${unsentTweetIds.length} unsent tweets to peer ${peerId}`);
-
-		// Prepare the tweets to send
 		const tweetsToSend = this.tweets.filter(tweet => unsentTweetIds.includes(tweet.id));
+		this.sendTweetsToPeer(conn, tweetsToSend);
+	}
 
-		// Split into smaller batches if there are many tweets to avoid overwhelming the connection
+	/**
+	 * Send a specific list of tweets to a peer, batched and enriched with full
+	 * images so the receiver can persist them in IndexedDB.
+	 * @param {Object} conn - PeerJS connection
+	 * @param {Array} tweetsToSend - Tweets to transmit
+	 */
+	sendTweetsToPeer(conn, tweetsToSend) {
+		const peerId = conn.peer;
+
+		if (!Array.isArray(tweetsToSend) || tweetsToSend.length === 0) {
+			return;
+		}
+
+		console.log(`Sending ${tweetsToSend.length} tweets to peer ${peerId}`);
+
+		// Split into smaller batches to avoid overwhelming the connection
 		const BATCH_SIZE = 20;
 		const batches = [];
-
 		for (let i = 0; i < tweetsToSend.length; i += BATCH_SIZE) {
 			batches.push(tweetsToSend.slice(i, i + BATCH_SIZE));
 		}
 
 		// Send tweets in batches with small delays between batches
 		batches.forEach((batch, index) => {
-			setTimeout(() => {
+			setTimeout(async () => {
 				try {
-					const batchData = {
-						type: 'all_tweets',
-						tweets: batch
-					};
+					// Attach the full image to any media tweets so the receiving
+					// peer can store it in its own IndexedDB (not just the thumbnail).
+					const enrichedTweets = await Promise.all(batch.map(async (tweet) => {
+						if (!tweet.mediaId) return tweet;
+						const fullImage = await this.getFullImageData(tweet.mediaId);
+						return fullImage ? { ...tweet, fullImage } : tweet;
+					}));
 
-					conn.send(batchData);
+					conn.send({
+						type: 'all_tweets',
+						tweets: enrichedTweets
+					});
 
 					// Mark these tweets as sent to this peer
 					batch.forEach(tweet => {
@@ -571,21 +860,17 @@ console.log('NEIN 1');
 						if (!this.tweetRecipients[tweet.id].includes(peerId)) {
 							this.tweetRecipients[tweet.id].push(peerId);
 						}
-
-						// Remove from unsent list
 						if (this.unsentTweets[peerId]) {
 							this.unsentTweets[peerId] = this.unsentTweets[peerId].filter(id => id !== tweet.id);
 						}
 					});
 
-					// Save updated state after each batch
 					this.saveMessageDistributionState();
-
 					console.log(`Sent batch ${index + 1}/${batches.length} (${batch.length} tweets) to peer ${peerId}`);
 				} catch (error) {
-					console.error(`Failed to send unsent tweets batch to peer ${peerId}:`, error);
+					console.error(`Failed to send tweets batch to peer ${peerId}:`, error);
 
-					// If sending fails, make sure these tweets stay in the unsent list
+					// If sending fails, keep these tweets in the unsent list
 					batch.forEach(tweet => {
 						if (!this.unsentTweets[peerId]) {
 							this.unsentTweets[peerId] = [];
@@ -614,7 +899,7 @@ console.log('NEIN 1');
 	 * @param {Object} data - Message data
 	 * @param {Object} conn - PeerJS connection
 	 */
-	handleTweetMessage(data, conn) {
+	async handleTweetMessage(data, conn) {
 		try {
 			// Validate the tweet data
 			const tweetData = {
@@ -624,6 +909,15 @@ console.log('NEIN 1');
 				id: data.id
 			};
 
+			// Preserve any attached media so it propagates to this peer too
+			if (data.mediaId) {
+				tweetData.mediaId = data.mediaId;
+				tweetData.mediaThumbnail = data.mediaThumbnail;
+				tweetData.mediaType = data.mediaType;
+			}
+			if (data.authorId) tweetData.authorId = data.authorId;
+			if (data.circle) tweetData.circle = data.circle;
+
 			if (!this.validateTweet(tweetData)) {
 				console.error('Received invalid tweet from peer', conn.peer, data);
 				return;
@@ -632,8 +926,25 @@ console.log('NEIN 1');
 			// If the tweet has an ID, use it, otherwise generate one
 			const tweetId = data.id || this.generateUniqueId(data.username, data.content, data.timestamp);
 
-			// Add tweet to our database
-			this.addTweet(data.username, data.content, data.timestamp, null, tweetId);
+			// Is this the first time we've seen this tweet? (drives relay)
+			const isNew = !this.tweets.some(t => t.id === tweetId);
+
+			// Persist any full image that came along, into our own IndexedDB
+			await this.storeIncomingMedia(data);
+
+			// Add tweet to our database (including media metadata if present)
+			this.addTweet(
+				data.username,
+				data.content,
+				data.timestamp,
+				null,
+				tweetId,
+				data.mediaId || null,
+				data.mediaThumbnail || null,
+				data.mediaType || null,
+				data.authorId || null,
+				data.circle || null
+			);
 
 			// Mark as received from this peer
 			if (!this.tweetRecipients[tweetId]) {
@@ -654,6 +965,14 @@ console.log('NEIN 1');
 			// Notify listeners
 			if (typeof this.onTweetsUpdated === 'function') {
 				this.onTweetsUpdated();
+			}
+
+			// Multi-hop relay: forward newly seen tweets to our other peers
+			if (isNew) {
+				const storedTweet = this.tweets.find(t => t.id === tweetId);
+				if (storedTweet) {
+					await this.relayTweet(storedTweet, conn.peer);
+				}
 			}
 		} catch (error) {
 			console.error('Error handling tweet message:', error);
@@ -684,7 +1003,7 @@ console.log('NEIN 1');
 	 * @param {Object} data - Message data
 	 * @param {Object} conn - PeerJS connection
 	 */
-	handleAllTweetsMessage(data, conn) {
+	async handleAllTweetsMessage(data, conn) {
 		try {
 			// Validate the tweets array
 			if (!Array.isArray(data.tweets)) {
@@ -692,23 +1011,65 @@ console.log('NEIN 1');
 				return;
 			}
 
-			// Track valid tweets
+			// Track valid tweets and which ones are newly seen (for relay)
 			const validTweetIds = [];
+			const newlyAddedIds = [];
 
 			// Process the received tweets
-			data.tweets.forEach(tweet => {
+			for (const tweet of data.tweets) {
 				try {
+					// Strip the transport-only full image before validating/storing the
+					// tweet object itself (validateTweet rejects unexpected properties).
+					const fullImage = tweet.fullImage || null;
+
+					const cleanTweet = {
+						username: tweet.username,
+						content: tweet.content,
+						timestamp: tweet.timestamp,
+						id: tweet.id
+					};
+					if (tweet.mediaId) {
+						cleanTweet.mediaId = tweet.mediaId;
+						cleanTweet.mediaThumbnail = tweet.mediaThumbnail;
+						cleanTweet.mediaType = tweet.mediaType;
+					}
+					if (tweet.authorId) cleanTweet.authorId = tweet.authorId;
+					if (tweet.circle) cleanTweet.circle = tweet.circle;
+
 					// Validate each tweet
-					if (!this.validateTweet(tweet)) {
+					if (!this.validateTweet(cleanTweet)) {
 						console.error('Skipping invalid tweet in bulk message:', tweet);
-						return;
+						continue;
 					}
 
 					// Use the tweet's ID if provided, otherwise generate one
-					const tweetId = tweet.id || this.generateUniqueId(tweet.username, tweet.content, tweet.timestamp);
+					const tweetId = cleanTweet.id || this.generateUniqueId(cleanTweet.username, cleanTweet.content, cleanTweet.timestamp);
 
-					// Add the tweet
-					this.addTweet(tweet.username, tweet.content, tweet.timestamp, null, tweetId);
+					const isNew = !this.tweets.some(t => t.id === tweetId);
+
+					// Persist any full image that came along, into our own IndexedDB
+					if (cleanTweet.mediaId && fullImage) {
+						await this.storeIncomingMedia({
+							mediaId: cleanTweet.mediaId,
+							mediaType: cleanTweet.mediaType,
+							mediaThumbnail: cleanTweet.mediaThumbnail,
+							fullImage
+						});
+					}
+
+					// Add the tweet (including media metadata if present)
+					this.addTweet(
+						cleanTweet.username,
+						cleanTweet.content,
+						cleanTweet.timestamp,
+						null,
+						tweetId,
+						cleanTweet.mediaId || null,
+						cleanTweet.mediaThumbnail || null,
+						cleanTweet.mediaType || null,
+						cleanTweet.authorId || null,
+						cleanTweet.circle || null
+					);
 
 					// Mark as received from this peer
 					if (!this.tweetRecipients[tweetId]) {
@@ -719,10 +1080,13 @@ console.log('NEIN 1');
 					}
 
 					validTweetIds.push(tweetId);
+					if (isNew) {
+						newlyAddedIds.push(tweetId);
+					}
 				} catch (error) {
 					console.error('Error processing individual tweet in bulk message:', error);
 				}
-			});
+			}
 
 			// Send acknowledgment for all valid received tweets
 			if (validTweetIds.length > 0) {
@@ -737,6 +1101,14 @@ console.log('NEIN 1');
 			// Notify listeners
 			if (typeof this.onTweetsUpdated === 'function') {
 				this.onTweetsUpdated();
+			}
+
+			// Multi-hop relay: forward newly seen tweets to our other peers
+			for (const tweetId of newlyAddedIds) {
+				const storedTweet = this.tweets.find(t => t.id === tweetId);
+				if (storedTweet) {
+					await this.relayTweet(storedTweet, conn.peer);
+				}
 			}
 		} catch (error) {
 			console.error('Error handling bulk tweet message:', error);

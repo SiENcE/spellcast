@@ -8,13 +8,18 @@ export class StorageManager {
     TWEETS: 'p2p_spellcasts',
     PEERS: 'p2p_saved_peers',
     TWEET_RECIPIENTS: 'p2p_tweet_recipients',
-    UNSENT_TWEETS: 'p2p_unsent_tweets'
+    UNSENT_TWEETS: 'p2p_unsent_tweets',
+    CIRCLES: 'p2p_circles'
   };
 
   // Database configuration
   static DB_NAME = 'spellcast_db';
-  static DB_VERSION = 1;
+  // Version 2 adds the media store (see MediaManager). The whole app shares a
+  // single database connection/version to avoid concurrent open-at-two-versions
+  // conflicts.
+  static DB_VERSION = 2;
   static STORE_NAME = 'spellcast_store';
+  static MEDIA_STORE_NAME = 'media_store';
 
   constructor() {
     // Initialize database
@@ -46,16 +51,36 @@ export class StorageManager {
 
       request.onsuccess = (event) => {
         console.log('IndexedDB opened successfully');
-        resolve(event.target.result);
+        const db = event.target.result;
+
+        // If another connection (e.g. a future version upgrade) needs to take
+        // over, close this one so it doesn't block the upgrade indefinitely.
+        db.onversionchange = () => {
+          console.warn('IndexedDB version change requested; closing connection.');
+          db.close();
+        };
+
+        resolve(db);
+      };
+
+      request.onblocked = () => {
+        console.warn('IndexedDB open is blocked by another open connection.');
       };
 
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
-        
-        // Create an object store if it doesn't exist
+
+        // Create the main object store if it doesn't exist
         if (!db.objectStoreNames.contains(StorageManager.STORE_NAME)) {
           db.createObjectStore(StorageManager.STORE_NAME);
           console.log('Created object store:', StorageManager.STORE_NAME);
+        }
+
+        // Create the media store here as well so the whole database is managed
+        // through a single version (MediaManager reuses this same connection).
+        if (!db.objectStoreNames.contains(StorageManager.MEDIA_STORE_NAME)) {
+          db.createObjectStore(StorageManager.MEDIA_STORE_NAME);
+          console.log('Created object store:', StorageManager.MEDIA_STORE_NAME);
         }
       };
     });
@@ -287,7 +312,8 @@ export class StorageManager {
     await this.removeFromStorage(StorageManager.KEYS.PEERS);
     await this.removeFromStorage(StorageManager.KEYS.TWEET_RECIPIENTS);
     await this.removeFromStorage(StorageManager.KEYS.UNSENT_TWEETS);
-    
+    await this.removeFromStorage(StorageManager.KEYS.CIRCLES);
+
     console.log('All IndexedDB data cleared');
   }
   

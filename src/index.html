@@ -57,40 +57,69 @@
 			<div id="connection-quality" class="unknown"></div>
         </div>
 
-        <div class="tab-container">
-            <div class="tab active" id="feed-tab">Feed</div>
-            <div class="tab" id="peers-tab">Connect</div>
-            <div class="tab" id="profile-tab">Profile</div>
-        </div>
+        <div class="app-body">
+            <aside id="circles-sidebar">
+                <h3>Circles</h3>
+                <div id="circles-sidebar-list"></div>
+                <div class="sidebar-new-circle">
+                    <input type="text" id="sidebar-circle-name" placeholder="New circle name">
+                    <button id="sidebar-create-circle" title="Create circle">+</button>
+                </div>
+            </aside>
 
-        <div id="feed-container">
-            <div id="tweet-form">
-                <textarea id="tweet-content" placeholder="Cast your spell..." rows="3"></textarea>
-                <button id="tweet-button">Cast</button>
-            </div>
-            <div id="tweets-container"></div>
-        </div>
+            <div class="app-main">
+                <div class="tab-container">
+                    <div class="tab active" id="feed-tab">Feed</div>
+                    <div class="tab" id="peers-tab">Connect</div>
+                    <div class="tab" id="circles-tab">Circles</div>
+                    <div class="tab" id="profile-tab">Profile</div>
+                </div>
 
-        <div id="peers-container" style="display: none;">
-            <div id="connect-form">
-                <label for="connect-id">Connect to a peer by ID:</label>
-                <input type="text" id="connect-id" placeholder="Enter peer ID">
-                <button id="connect-button">Connect</button>
-            </div>
-            <h3>Connected Peers</h3>
-            <div id="peers-list"></div>
-        </div>
-        
-        <div id="profile-container" style="display: none;">
-            <h3>Your Profile</h3>
-            <div class="profile-info">
-                <p><strong>Username:</strong> <span id="profile-username"></span></p>
-                <p><strong>Your Peer ID:</strong> <span id="profile-peerid"></span></p>
-                <div id="profile-qrcode" class="profile-qrcode"></div>
-            </div>
-            <div class="profile-actions">
-				<button id="delete-all-messages-button" class="danger-button">Delete All Messages</button>
-                <button id="delete-account-button" class="danger-button">Delete Account</button>
+                <div id="feed-container">
+                    <div id="feed-heading"></div>
+                    <div id="tweet-form">
+                        <textarea id="tweet-content" placeholder="Cast your spell..." rows="3"></textarea>
+                        <div class="tweet-form-actions">
+                            <span id="cast-target" class="cast-target">Casting to: All Peers</span>
+                            <button id="tweet-button">Cast</button>
+                        </div>
+                    </div>
+                    <div id="tweets-container"></div>
+                </div>
+
+                <div id="peers-container" style="display: none;">
+                    <div id="connect-form">
+                        <label for="connect-id">Connect to a peer by ID:</label>
+                        <input type="text" id="connect-id" placeholder="Enter peer ID">
+                        <button id="connect-button">Connect</button>
+                    </div>
+                    <h3>Connected Peers</h3>
+                    <div id="peers-list"></div>
+                </div>
+
+                <div id="circles-container" style="display: none;">
+                    <div id="create-circle-form">
+                        <label for="new-circle-name">Create a new circle:</label>
+                        <input type="text" id="new-circle-name" placeholder="Circle name">
+                        <button id="create-circle-button">Create</button>
+                        <p class="hint">Group your peers into circles to filter your feed and send messages to specific groups.</p>
+                    </div>
+                    <div id="circles-manage-list"></div>
+                </div>
+
+                <div id="profile-container" style="display: none;">
+                    <h3>Your Profile</h3>
+                    <div class="profile-info">
+                        <p><strong>Username:</strong> <span id="profile-username"></span></p>
+                        <p><strong>Your Peer ID:</strong> <span id="profile-peerid"></span></p>
+                        <div id="profile-qrcode" class="profile-qrcode"></div>
+                    </div>
+                    <div class="profile-actions">
+                        <button id="cleanup-storage-button">Clean Up Storage</button>
+                        <button id="delete-all-messages-button" class="danger-button">Delete All Messages</button>
+                        <button id="delete-account-button" class="danger-button">Delete Account</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
