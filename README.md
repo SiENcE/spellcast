@@ -24,7 +24,8 @@ Most social apps are free because *you* are the product. SpellCast takes the opp
 ## Features you'll actually use
 
 - 📝 **Cast spells** — short posts shared instantly with everyone you're connected to
-- 🖼️ **Images & links** — attach a picture, or drop a link and get an automatic preview (images, YouTube, websites)
+- ✨ **Spark** — cast a sparkle onto someone else's spell to show some love (a signed, peer-to-peer reaction)
+- 🖼️ **Images & links** — attach a picture (large photos are automatically optimized to send), or drop a link and get an automatic preview (images, YouTube, websites)
 - 🔵 **Circles** — group your peers (Friends, Work, Family…), filter your feed by circle, and cast to just one group when you want to
 - 🕸️ **Mesh delivery** — messages hop from friend to friend, reaching people you're not directly connected to
 - 🔄 **Pick up anywhere** — log back in on another device and your history syncs back from your peers
