@@ -8,7 +8,7 @@
 
 ## Try it now
 
-Try SpellCast: **[sience.github.io/spellcast](https://sience.github.io/spellcast)** — or [run your own copy](docs/TECHNICAL.md#running-locally).
+Try SpellCast: **[sience.github.io/](https://sience.github.io/)** — or [run your own copy](docs/TECHNICAL.md#running-locally).
 
 ## Why SpellCast?
 
