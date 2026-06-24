@@ -1,6 +1,7 @@
 // Manages UI components, event listeners and display logic
 
 import { linkify, extractUrls, buildLinkPreview } from './link-preview.js';
+import { fingerprint, handleFor, CryptoIdentity } from './crypto-identity.js';
 
 export class UIManager {
   constructor(userManager, peerManager, tweetManager, storageManager, mediaManager, circleManager) {
@@ -78,6 +79,9 @@ export class UIManager {
       deleteAccountButton: document.getElementById('delete-account-button'),
       deleteAllMessagesButton: document.getElementById('delete-all-messages-button'),
       cleanupStorageButton: document.getElementById('cleanup-storage-button'),
+      exportIdentityButton: document.getElementById('export-identity-button'),
+      importIdentityButton: document.getElementById('import-identity-button'),
+      importIdentityFile: document.getElementById('import-identity-file'),
 
       // Inputs
       usernameInput: document.getElementById('username'),
@@ -163,6 +167,10 @@ export class UIManager {
         // Initialize peer connection
         const peerId = await this.peerManager.initializePeer();
 
+        // Mint the signing keypair for this brand-new account.
+        await this.userManager.ensureIdentity();
+        await this.tweetManager.pinOwnIdentity();
+
         // Display the peer ID and QR code
         this.elements.peerIdDisplay.textContent = peerId;
         this.elements.credentialsArea.style.display = 'block';
@@ -201,6 +209,8 @@ export class UIManager {
       try {
         // Save credentials and login
         this.userManager.loginWithCredentials(username, peerId);
+        await this.userManager.ensureIdentity();
+        await this.tweetManager.pinOwnIdentity();
         await this.peerManager.loginToPeer();
 
         // Hide login screens, show app
@@ -261,6 +271,14 @@ export class UIManager {
     this.elements.connectButton.addEventListener('click', this.connectToPeer);
 
     this.elements.deleteAccountButton.addEventListener('click', this.deleteAccount.bind(this));
+
+    // Identity backup: export from the profile, import from the login screen.
+    if (this.elements.exportIdentityButton) {
+      this.elements.exportIdentityButton.addEventListener('click', this.exportIdentity.bind(this));
+    }
+    if (this.elements.importIdentityButton) {
+      this.elements.importIdentityButton.addEventListener('click', this.importIdentity.bind(this));
+    }
 
     // Status and connection quality update listeners
     window.addEventListener('status-update', this.handleStatusUpdate);
@@ -536,7 +554,8 @@ export class UIManager {
    */
   updateProfileInfo() {
     const { username, peerId } = this.userManager.getUserInfo();
-    this.elements.profileUsername.textContent = username;
+    // Show the verifiable handle `name#fingerprint` rather than the bare name.
+    this.elements.profileUsername.textContent = handleFor(username, this.userManager.publicKey);
     this.elements.profilePeerId.textContent = peerId;
 
     // Generate QR code for profile if not already generated
@@ -632,6 +651,106 @@ export class UIManager {
         this.showIntroScreen();
         alert('Your account has been deleted successfully.');
       });
+    }
+  }
+
+  /**
+   * Export the user's signing identity as a passphrase-encrypted backup file.
+   */
+  async exportIdentity() {
+    if (!this.userManager.publicKey) {
+      alert('No exportable identity is available. (WebCrypto needs HTTPS or localhost.)');
+      return;
+    }
+
+    const passphrase = prompt('Choose a passphrase to encrypt your identity backup.\n'
+      + 'You will need this exact passphrase to restore the account. There is no way to recover it.');
+    if (passphrase === null) return; // cancelled
+    if (passphrase.length < 6) {
+      alert('Please use a passphrase of at least 6 characters.');
+      return;
+    }
+    const confirmPass = prompt('Re-enter the passphrase to confirm:');
+    if (confirmPass === null) return;
+    if (confirmPass !== passphrase) {
+      alert('Passphrases did not match. Nothing was exported.');
+      return;
+    }
+
+    try {
+      const { username, peerId } = this.userManager.getUserInfo();
+      const envelope = await this.userManager.identity.exportEncrypted(passphrase, { username, peerId });
+
+      const blob = new Blob([JSON.stringify(envelope, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safeName = (username || 'identity').replace(/[^a-z0-9_-]/gi, '_');
+      a.href = url;
+      a.download = `spellcast-identity-${safeName}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      alert('Identity backup downloaded. Store it somewhere safe — anyone with the file AND the passphrase can post as you.');
+    } catch (error) {
+      console.error('Identity export failed:', error);
+      alert(`Could not export identity: ${error.message}`);
+    }
+  }
+
+  /**
+   * Restore an identity from a backup file on the login screen, then log in.
+   */
+  async importIdentity() {
+    const fileInput = this.elements.importIdentityFile;
+    const file = fileInput && fileInput.files && fileInput.files[0];
+    if (!file) {
+      alert('Please choose an identity backup file first.');
+      return;
+    }
+
+    let envelope;
+    try {
+      envelope = JSON.parse(await file.text());
+    } catch (error) {
+      alert('That file is not a valid identity backup (could not parse JSON).');
+      return;
+    }
+
+    const passphrase = prompt('Enter the passphrase for this identity backup:');
+    if (passphrase === null) return;
+
+    try {
+      const { identity, username, peerId } = await CryptoIdentity.importEncrypted(envelope, passphrase);
+      if (!username || !peerId) {
+        throw new Error('Backup is missing the username or peer ID.');
+      }
+
+      // Adopt the restored identity + credentials and persist them.
+      this.userManager.identity = identity;
+      await this.storageManager.saveIdentity({
+        privateKey: identity.privateKey,
+        publicKeyB64: identity.publicKeyB64
+      });
+      await this.userManager.loginWithCredentials(username, peerId);
+      await this.tweetManager.pinOwnIdentity();
+
+      // Connect to the peer network and show the app (mirrors the login flow).
+      await this.peerManager.loginToPeer();
+      this.elements.loginContainer.style.display = 'none';
+      this.elements.appContainer.style.display = 'block';
+      this.elements.currentUserElement.textContent = username;
+
+      await this.tweetManager.loadTweets();
+      this.renderTweets();
+      this.updatePeersList();
+      this.updateProfileInfo();
+
+      alert(`Welcome back, ${handleFor(username, identity.publicKeyB64)}. Your identity was restored.`);
+    } catch (error) {
+      console.error('Identity import failed:', error);
+      alert(`Could not import identity: ${error.message}`);
     }
   }
 
@@ -836,7 +955,10 @@ export class UIManager {
     const tweetMain = document.createElement('div');
     tweetMain.className = 'tweet-main';
 
-    const avatar = this.createAvatar(tweet.username, isMine);
+    // Avatar shows the username's initial but its COLOR is seeded by the
+    // author's KEY when we have one, so two users with the same name still look
+    // different (and impersonators don't inherit a victim's avatar colour).
+    const avatar = this.createAvatar(tweet.username, isMine, tweet.authorKey || tweet.username);
     tweetMain.appendChild(avatar);
 
     const tweetBody = document.createElement('div');
@@ -848,7 +970,17 @@ export class UIManager {
     const tweetUser = document.createElement('div');
     tweetUser.className = 'tweet-user';
     tweetUser.textContent = tweet.username;
+    if (tweet.authorKey) {
+      // Append the short key fingerprint so the displayed handle is `name#abcd`.
+      const fp = document.createElement('span');
+      fp.className = 'tweet-fingerprint';
+      fp.textContent = `#${fingerprint(tweet.authorKey)}`;
+      tweetUser.appendChild(fp);
+    }
     tweetHeader.appendChild(tweetUser);
+
+    // Trust badge: verified ✓, impersonation ⚠, or unverified (legacy/unsigned).
+    tweetHeader.appendChild(this.buildTrustBadge(tweet, isMine));
 
     // Show the audience badge for circle (narrow-cast) messages
     if (tweet.circle) {
@@ -909,16 +1041,48 @@ export class UIManager {
   }
 
   /**
+   * Build the trust badge shown next to a message author.
+   *  - nameConflict → a *different* key is using a name we already pinned to
+   *    someone else: a likely impersonator.
+   *  - verified → the signature checked out against the author's key.
+   *  - otherwise → unsigned / legacy message we cannot vouch for.
+   * @param {Object} tweet
+   * @param {boolean} isMine
+   * @returns {HTMLElement}
+   */
+  buildTrustBadge(tweet, isMine) {
+    const badge = document.createElement('span');
+    badge.classList.add('trust-badge');
+
+    if (tweet.nameConflict) {
+      badge.classList.add('trust-conflict');
+      badge.textContent = '⚠ impersonator?';
+      badge.title = 'A different key has already been seen using this username. '
+        + 'This message is signed by a DIFFERENT key — it may be an impersonator.';
+    } else if (tweet.verified) {
+      badge.classList.add('trust-verified');
+      badge.textContent = isMine ? '✓ you' : '✓ verified';
+      badge.title = 'Signature verified against this author\'s key.';
+    } else {
+      badge.classList.add('trust-unverified');
+      badge.textContent = 'unverified';
+      badge.title = 'This message is not signed (a legacy or un-upgraded peer); '
+        + 'its author cannot be cryptographically verified.';
+    }
+    return badge;
+  }
+
+  /**
    * Build a circular avatar element with the user's initial.
    * @param {string} name
    * @param {boolean} isSelf - your own avatar is rendered in the brand color
    * @returns {HTMLElement}
    */
-  createAvatar(name, isSelf = false) {
+  createAvatar(name, isSelf = false, colorSeed = null) {
     const avatar = document.createElement('div');
     avatar.className = 'avatar';
     avatar.textContent = this.getInitial(name);
-    avatar.style.backgroundColor = this.getAvatarColor(name, isSelf);
+    avatar.style.backgroundColor = this.getAvatarColor(colorSeed || name, isSelf);
     return avatar;
   }
 
