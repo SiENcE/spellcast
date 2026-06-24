@@ -10,7 +10,8 @@ couple of small libraries:
 - **[PeerJS](https://peerjs.com/)** — WebRTC connections for peer-to-peer communication
 - **IndexedDB** — persistent storage for messages, media, peers, circles, and identity keys
 - **[Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)** — browser-native cryptography for message signing, identities, and circle-message encryption (no crypto library is bundled)
-- **[QRCode.js](https://github.com/davidshimjs/qrcodejs)** — QR codes for sharing peer IDs
+- **[QRCode.js](https://github.com/davidshimjs/qrcodejs)** — generating the QR codes used to share an invite link
+- **[jsQR](https://github.com/cozmo/jsQR)** — *vendored locally* (`src/jsQR.min.js`) and lazy-loaded only when the in-app camera scanner is opened, to decode QR codes in browsers without the native [`BarcodeDetector`](https://developer.mozilla.org/en-US/docs/Web/API/BarcodeDetector) API
 
 ---
 
@@ -93,6 +94,28 @@ SpellCast forms a mesh network:
 
 There's no central point of failure, and messages can reach their destination
 through alternative paths in the network.
+
+### Connecting (QR codes & invite links)
+
+To start talking, two peers need to exchange one peer id. SpellCast makes that
+typing-free:
+
+- **QR codes encode a deep link**, not the bare id —
+  `<this app's URL>?connect=<peerId>`. Scanning it with a **phone's native
+  camera** therefore opens SpellCast (wherever it is served) rather than feeding a
+  meaningless string to a search engine. On load, the app reads the `?connect=`
+  parameter, strips it from the URL (so a refresh doesn't reconnect), and — once
+  you're logged in — offers to connect to that peer.
+- **In-app scanner.** The *Connect* tab has a "Scan QR" button that opens the rear
+  camera and decodes a peer's QR directly, using the native `BarcodeDetector`
+  where available and the vendored `jsQR` decoder otherwise.
+- **Invite links.** The profile offers *Share invite link* (via the OS share sheet
+  on mobile, using the [Web Share API](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share))
+  and *Copy link*, so the same `?connect=` URL can be sent over any messenger. The
+  connect field also accepts a pasted invite link or a raw id interchangeably.
+
+These are convenience transports for a public routing id — they carry no secret
+(your security comes from the signed identity, not from the id staying private).
 
 ### P2P message distribution tracking
 

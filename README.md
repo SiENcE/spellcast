@@ -41,8 +41,9 @@ Most social apps are free because *you* are the product. SpellCast takes the opp
 5. Click **Continue to App**
 
 ### Connect with people
-- **By ID:** open the **Connect** tab, paste a friend's peer ID, and click **Connect**
-- **By QR code:** show your code from the **Profile** tab and have a friend scan it (or scan theirs)
+- **By QR code:** show your code from the **Profile** tab and have a friend point their **phone camera** at it — it opens SpellCast and offers to connect. Or use the **Scan QR** button on the **Connect** tab to scan theirs from inside the app.
+- **By invite link:** from the **Profile** tab, tap **Share invite link** (or **Copy link**) and send it over any messenger — opening it connects them to you. No typing required.
+- **By ID / link:** open the **Connect** tab and paste a peer ID *or* an invite link, then click **Connect**.
 - SpellCast remembers your connections and reconnects automatically next time
 
 ### Cast a spell
@@ -88,6 +89,7 @@ Creative Commons Attribution-NonCommercial 4.0 International - see [LICENSE](LIC
 
 - [PeerJS](https://peerjs.com/) - WebRTC peer connections
 - [QRCode.js](https://github.com/davidshimjs/qrcodejs) - QR code generation
+- [jsQR](https://github.com/cozmo/jsQR) - QR code scanning (MIT)
 
 ---
 
