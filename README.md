@@ -63,8 +63,10 @@ On the **Profile** tab you can show your QR code, **Clean Up Storage** (remove u
 
 SpellCast is an honest prototype, so a few things are worth understanding up front:
 
-- Your peer ID is both your address *and* your login — you share it to connect, but anyone who has it could log in as you. Treat identities as unverified.
+- **Identities are cryptographically signed.** Every message is signed with a key that lives only in your browser, and your peers verify it — so impostors can't forge your posts (a key/name mismatch is flagged as "⚠ impersonator?"). Your displayed handle is `name#fingerprint`. Back up your key from **Profile → Export Identity Backup** (passphrase-encrypted) and restore it on another device from the login screen.
+- Your peer ID is still your network *address and* login for now; account portability is via the encrypted identity backup file rather than re-typing the ID.
 - Connections are encrypted in transit, but SpellCast doesn't add its own end-to-end message encryption yet, and **circles are for organizing, not for privacy**.
+- **Metadata isn't fully private:** by default a public PeerJS broker can see peer IDs and who connects to whom (not your message content). You can [self-host the broker + TURN](docs/SELF-HOSTING.md) to keep that off third-party servers.
 - Deleting a message removes it from *your* device; copies others already received may reappear when you reconnect.
 
 The full, frank list is in the [technical notes](docs/TECHNICAL.md#known-limitations--prototype-status).
