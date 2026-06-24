@@ -65,7 +65,7 @@ SpellCast is an honest prototype, so a few things are worth understanding up fro
 
 - **Identities are cryptographically signed.** Every message is signed with a key that lives only in your browser, and your peers verify it — so impostors can't forge your posts (a key/name mismatch is flagged as "⚠ impersonator?"). Your displayed handle is `name#fingerprint`. Back up your key from **Profile → Export Identity Backup** (passphrase-encrypted) and restore it on another device from the login screen.
 - Your peer ID is still your network *address and* login for now; account portability is via the encrypted identity backup file rather than re-typing the ID.
-- Connections are encrypted in transit, but SpellCast doesn't add its own end-to-end message encryption yet, and **circles are for organizing, not for privacy**.
+- Connections are encrypted in transit (WebRTC/DTLS). **Circle posts are additionally end-to-end encrypted** to each member's key — the broker and any intermediary only see ciphertext. **Public ("All Peers") posts are not encrypted**, since they're meant to spread across the whole mesh.
 - **Metadata isn't fully private:** by default a public PeerJS broker can see peer IDs and who connects to whom (not your message content). You can [self-host the broker + TURN](docs/SELF-HOSTING.md) to keep that off third-party servers.
 - Deleting a message removes it from *your* device; copies others already received may reappear when you reconnect.
 
