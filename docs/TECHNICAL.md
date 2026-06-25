@@ -52,7 +52,7 @@ the main controller:
 
 - **SpellCastApp** (`app.js`) — main application controller and bootstrap
 - **UserManager** — username, peer id, and the cryptographic identity (loads/mints the keypairs)
-- **CryptoIdentity** (`crypto-identity.js`) — all cryptography: keypair generation, message signing/verification, the multi-recipient sealed box for circle posts, the passphrase-encrypted identity backup, and the CSPRNG id helper
+- **CryptoIdentity** (`crypto-identity.js`) — all cryptography: keypair generation, message signing/verification, the multi-recipient sealed box for circle posts, the passphrase-encrypted credential backup, and the CSPRNG id helper
 - **PeerManager** — peer connections, reconnection, message routing, and per-peer abuse resistance (rate limiting, strikes, blocklist)
 - **TweetManager** — message creation, validation, signing/verification, encryption of circle posts, storage, distribution, and reactions
 - **MediaManager** — image processing (resize/thumbnail, client-side compression) and storage
@@ -184,7 +184,7 @@ no crypto library is bundled.
 
 ### Cryptographic identity
 
-Identity is a **keypair, not a name.** On first run (or new-account creation) each
+Identity is a **keypair, not a name.** On first run (or when new credentials are created) each
 client generates two P-256 keypairs via `crypto.subtle.generateKey`:
 
 - an **ECDSA P-256** keypair used to **sign** messages, and
@@ -193,7 +193,7 @@ client generates two P-256 keypairs via `crypto.subtle.generateKey`:
 P-256 is used (rather than Ed25519/X25519) because it is supported by every
 current browser's Web Crypto implementation. The two **public** keys are what
 travel to other peers; the private keys live in IndexedDB as `CryptoKey` objects.
-Legacy accounts created before this existed transparently mint a keypair on first
+Legacy credentials created before this existed transparently mint a keypair on first
 run of an updated build.
 
 The **signing public key is the real identity.** The username is only a
@@ -288,10 +288,10 @@ client is too old to advertise an encryption key, that member is skipped for an
 encrypted post; if *no* recipient supports encryption the post falls back to
 cleartext (with a console warning).
 
-### Identity backup & portability
+### Credential backup & portability
 
 Because the identity is a private key held in one browser, it can be exported as a
-**passphrase-encrypted backup file** (Profile → *Export Identity Backup*) and
+**passphrase-encrypted backup file** (Profile → *Export Credential Backup*) and
 restored on another device from the login screen. The backup wraps both private
 keys (plus username and peer id) with a key derived from your passphrase using
 **PBKDF2-HMAC-SHA-256 (250,000 iterations) → AES-256-GCM**; the file is useless
@@ -381,7 +381,7 @@ own broker by filling in the `CUSTOM_PEER_SERVER`
 adjacent `CUSTOM_TURN_SERVERS` constant adds authenticated TURN relays for peers
 behind symmetric NAT (the app ships with public STUN only). Both default to off,
 so behaviour is unchanged until configured; when set, every connection path
-(new-account, login, fallback) honours them.
+(new-credentials, login, fallback) honours them.
 
 ### What the security model does **not** cover
 
@@ -424,7 +424,7 @@ migration path) to persist:
 - **Distribution state** — which peers have received which messages
 
 The main store and the media store share one database version to avoid concurrent
-open-at-two-versions conflicts. *Delete Account* and the data-reset actions clear
+open-at-two-versions conflicts. *Delete Credentials* and the data-reset actions clear
 the identity keys and name registry along with everything else.
 
 ---

@@ -37,7 +37,7 @@ const CUSTOM_PEER_SERVER = {
 ```
 
 Leave it `null` to use the public cloud broker (the default). When set, every
-connection path in `peer-manager.js` (new account, login, and the fallback
+connection path in `peer-manager.js` (new credentials, login, and the fallback
 paths) honours it automatically.
 
 ## Add a TURN relay

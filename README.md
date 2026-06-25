@@ -1,6 +1,6 @@
 # SpellCast - Your Conversations, Nobody Else's
 
-**Cast spells, not tweets.** SpellCast is a Twitter-like social app with **no servers, no accounts, and no company in the middle**. Your messages (called "spells") travel directly between you and the people you connect with, and everything lives in your own browser. It's a single web page - nothing to install.
+**Cast spells, not tweets.** SpellCast is a Twitter-like social app with **no servers, no sign-ups, and no company in the middle**. Your messages (called "spells") travel directly between you and the people you connect with, and everything lives in your own browser. It's a single web page - nothing to install.
 
 ![SpellCast](docs/spellcast-p2p-visualization.svg)
 
@@ -15,7 +15,7 @@ Try SpellCast: **[sience.github.io/](https://sience.github.io/)** - or [run your
 Most social apps are free because *you* are the product. SpellCast takes the opposite approach:
 
 - **No servers, no middleman.** There's no company database holding your posts. Messages go peer-to-peer, straight between browsers - nothing central to hack, sell, or shut down.
-- **No account, ever.** No email, no phone number, no password. You pick a username, get an ID, and you're in.
+- **No sign-up, ever.** No email, no phone number, no password. You pick a username, get an ID, and you're in.
 - **Your data stays with you.** Posts, images, and contacts live in *your* browser - not in someone else's cloud.
 - **Private by design.** No ads, no tracking, no profiling. Connections are encrypted in transit (WebRTC/DTLS), and messages only travel to people in your own network.
 - **Works everywhere.** Any modern desktop or mobile browser - iPhone, iPad, Android, laptop. Connect with a friend in seconds by scanning a QR code.
@@ -34,7 +34,7 @@ Most social apps are free because *you* are the product. SpellCast takes the opp
 ## How to use it
 
 ### Create your identity
-1. Click **Create New Account**
+1. Click **Create New Credentials**
 2. Choose a username others will see
 3. Click **Generate Your Credentials** - you'll get a peer ID (your address on the network)
 4. Keep that ID somewhere safe - it's how you log back in
@@ -59,14 +59,14 @@ Circles are your own private groups of peers - like lists.
 4. While a circle is selected, your casts go to that circle - pick **All Peers** to post to everyone
 
 ### Manage your stuff
-On the **Profile** tab you can show your QR code, **Clean Up Storage** (remove unused images and stale data), **Delete All Messages**, or **Delete Account** to wipe everything and start fresh.
+On the **Profile** tab you can show your QR code, **Clean Up Storage** (remove unused images and stale data), **Delete All Messages**, or **Delete Credentials** to wipe everything and start fresh.
 
 ## Good to know
 
 SpellCast is an honest prototype, so a few things are worth understanding up front:
 
-- **Identities are cryptographically signed.** Every message is signed with a key that lives only in your browser, and your peers verify it - so impostors can't forge your posts (a key/name mismatch is flagged as "⚠ impersonator?"). Your displayed handle is `name#fingerprint`. Back up your key from **Profile → Export Identity Backup** (passphrase-encrypted) and restore it on another device from the login screen.
-- Your peer ID is still your network *address and* login for now; account portability is via the encrypted identity backup file rather than re-typing the ID.
+- **Identities are cryptographically signed.** Every message is signed with a key that lives only in your browser, and your peers verify it - so impostors can't forge your posts (a key/name mismatch is flagged as "⚠ impersonator?"). Your displayed handle is `name#fingerprint`. Back up your key from **Profile → Export Credential Backup** (passphrase-encrypted) and restore it on another device from the login screen.
+- Your peer ID is still your network *address and* login for now; moving your credentials to another device is done via the encrypted credential backup file rather than re-typing the ID.
 - Connections are encrypted in transit (WebRTC/DTLS). **Circle posts are additionally end-to-end encrypted** to each member's key - the broker and any intermediary only see ciphertext. **Public ("All Peers") posts are not encrypted**, since they're meant to spread across the whole mesh.
 - **Metadata isn't fully private:** by default a public PeerJS broker can see peer IDs and who connects to whom (not your message content). You can [self-host the broker + TURN](docs/SELF-HOSTING.md) to keep that off third-party servers.
 - Deleting a message removes it from *your* device; copies others already received may reappear when you reconnect.
