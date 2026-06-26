@@ -2,7 +2,7 @@
 
 **Cast spells, not tweets.** SpellCast is a Twitter-like social app with **no servers, no sign-ups, and no company in the middle**. Your messages (called "spells") travel directly between you and the people you connect with, and everything lives in your own browser. It's a single web page - nothing to install.
 
-![SpellCast](docs/spellcast-p2p-visualization.svg)
+![SpellCast — four UI themes: Clean, Hex (default), Retro, and Terminal](docs/spellcast-themes.png)
 
 > ⚠️ SpellCast is an early **prototype**. It's a genuinely working, fun way to explore serverless social messaging - just don't rely on it for anything safety-critical yet. The honest details are in the [technical notes](docs/TECHNICAL.md).
 
