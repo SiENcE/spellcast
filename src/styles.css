@@ -1,3 +1,157 @@
+/* =====================================================================
+   Design tokens
+   ---------------------------------------------------------------------
+   Every color/shadow flows through a CSS custom property so the whole UI
+   can be re-themed (and so light/dark is a single attribute on <html>).
+   The :root block is the LIGHT theme; [data-theme="dark"] overrides it.
+   ===================================================================== */
+:root {
+    color-scheme: light;
+
+    /* ---- Type: editorial serif display + humanist sans body ("spelling") ---- */
+    --font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, 'Times New Roman', serif;
+    --font-body: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-mono: 'Cascadia Code', 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+    /* Page background gradient stops — warm parchment */
+    --bg-grad-1: #f7f2e7;
+    --bg-grad-2: #ece3d2;
+
+    /* Surfaces — warm paper, not cold white */
+    --surface: #fffdf8;
+    --surface-2: #f5efe2;
+    --surface-3: #efe7d6;
+    --surface-hover: #fffefb;
+    --chip-bg: #e8dfca;
+    --accent-tint-bg: #d9edef;
+
+    /* Borders */
+    --border: #ece2cd;
+    --border-2: #e3d8c0;
+    --field-bg: #fffdf8;
+    --field-border: #d9ccb2;
+
+    /* Text — warm ink */
+    --text: #221d15;
+    --text-muted: #6c5f4c;
+    --text-faint: #9b8d76;
+
+    /* Accent (primary brand) — peacock / teal ink */
+    --accent: #0e7c86;
+    --on-accent: #fffdf8;
+    --accent-focus-border: #7cc4cb;
+    --header-grad-1: #138591;
+    --header-grad-2: #0b626b;
+    --btn-grad-1: #12909b;
+    --btn-grad-2: #0c727c;
+    --accent-soft-bg: rgba(14, 124, 134, 0.12);
+    --accent-soft-bg-hover: rgba(14, 124, 134, 0.2);
+    --accent-soft-border: rgba(14, 124, 134, 0.35);
+    --focus-ring: rgba(14, 124, 134, 0.18);
+    --focus-ring-soft: rgba(14, 124, 134, 0.14);
+
+    /* Spark (reaction / secondary purple) */
+    --spark: #794bc4;
+    --spark-soft-bg: rgba(121, 75, 196, 0.10);
+    --spark-soft-bg-hover: rgba(121, 75, 196, 0.2);
+    --spark-soft-border: rgba(121, 75, 196, 0.30);
+    --spark-gold: #b07d00;
+    --spark-gold-bg: rgba(232, 164, 0, 0.18);
+    --spark-gold-border: rgba(232, 164, 0, 0.5);
+
+    /* Danger — warm crimson */
+    --danger: #c4385a;
+    --danger-grad-1: #d8466b;
+    --danger-grad-2: #b62e50;
+    --danger-soft-bg: rgba(196, 56, 90, 0.1);
+    --danger-soft-bg-hover: rgba(196, 56, 90, 0.2);
+    --danger-soft-border: rgba(196, 56, 90, 0.3);
+
+    /* Trust badges — leaf green (kept distinct from the teal accent) */
+    --trust-ok: #2f9e6f;
+    --trust-ok-bg: rgba(47, 158, 111, 0.13);
+    --trust-ok-border: rgba(47, 158, 111, 0.35);
+    --muted-soft-bg: rgba(136, 153, 166, 0.12);
+    --muted-soft-border: rgba(136, 153, 166, 0.3);
+    --muted-divider: rgba(136, 153, 166, 0.25);
+
+    /* Shadows — warm brown ink on parchment; buttons get a teal glow */
+    --shadow-card: 0 1px 3px rgba(64, 48, 22, 0.08);
+    --shadow-card-hover: 0 4px 14px rgba(64, 48, 22, 0.13);
+    --shadow-lg: 0 10px 30px rgba(64, 48, 22, 0.18);
+    --shadow-avatar: 0 2px 5px rgba(64, 48, 22, 0.22);
+    --shadow-btn: 0 2px 6px rgba(12, 114, 124, 0.32);
+    --shadow-btn-hover: 0 4px 12px rgba(12, 114, 124, 0.4);
+    --shadow-btn-danger: 0 2px 6px rgba(182, 46, 80, 0.3);
+}
+
+[data-theme="dark"] {
+    color-scheme: dark;
+
+    /* Warm-tinted ink, not flat blue-gray */
+    --bg-grad-1: #1b1a17;
+    --bg-grad-2: #100f0d;
+
+    --surface: #22211d;
+    --surface-2: #2a2823;
+    --surface-3: #322f29;
+    --surface-hover: #29271f;
+    --chip-bg: #34312a;
+    --accent-tint-bg: rgba(79, 199, 212, 0.16);
+
+    --border: #34312a;
+    --border-2: #38342c;
+    --field-bg: #1a1916;
+    --field-border: #46423a;
+
+    --text: #ece6d8;
+    --text-muted: #a89e8c;
+    --text-faint: #7c7363;
+
+    --accent: #4fc7d4;
+    --on-accent: #f2fbfb;
+    --accent-focus-border: #4fc7d4;
+    --header-grad-1: #1d3a3f;
+    --header-grad-2: #132a2e;
+    --btn-grad-1: #1aa3b0;
+    --btn-grad-2: #137e89;
+    --accent-soft-bg: rgba(79, 199, 212, 0.16);
+    --accent-soft-bg-hover: rgba(79, 199, 212, 0.26);
+    --accent-soft-border: rgba(79, 199, 212, 0.4);
+    --focus-ring: rgba(79, 199, 212, 0.25);
+    --focus-ring-soft: rgba(79, 199, 212, 0.2);
+
+    --spark: #c4a6f0;
+    --spark-soft-bg: rgba(170, 140, 230, 0.18);
+    --spark-soft-bg-hover: rgba(170, 140, 230, 0.28);
+    --spark-soft-border: rgba(170, 140, 230, 0.4);
+    --spark-gold: #f2c14e;
+    --spark-gold-bg: rgba(232, 164, 0, 0.22);
+    --spark-gold-border: rgba(232, 164, 0, 0.55);
+
+    --danger: #f47a98;
+    --danger-grad-1: #e0567c;
+    --danger-grad-2: #c4385a;
+    --danger-soft-bg: rgba(244, 122, 152, 0.16);
+    --danger-soft-bg-hover: rgba(244, 122, 152, 0.26);
+    --danger-soft-border: rgba(244, 122, 152, 0.4);
+
+    --trust-ok: #4fd99a;
+    --trust-ok-bg: rgba(79, 217, 154, 0.16);
+    --trust-ok-border: rgba(79, 217, 154, 0.4);
+    --muted-soft-bg: rgba(168, 158, 140, 0.14);
+    --muted-soft-border: rgba(168, 158, 140, 0.3);
+    --muted-divider: rgba(168, 158, 140, 0.2);
+
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.45);
+    --shadow-card-hover: 0 4px 14px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.6);
+    --shadow-avatar: 0 2px 5px rgba(0, 0, 0, 0.55);
+    --shadow-btn: 0 2px 6px rgba(0, 0, 0, 0.45);
+    --shadow-btn-hover: 0 4px 12px rgba(0, 0, 0, 0.55);
+    --shadow-btn-danger: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
 *,
 *::before,
 *::after {
@@ -9,35 +163,82 @@ html {
 }
 
 body {
-    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-family: var(--font-body);
     max-width: 820px;
     margin: 0 auto;
     padding: 24px 20px 40px;
-    background: radial-gradient(120% 90% at 50% 0%, #eef6fd 0%, #dbe7f2 100%);
+    background: radial-gradient(120% 90% at 50% 0%, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%);
     background-attachment: fixed;
-    color: #14171a;
+    color: var(--text);
     min-height: 100vh;
 }
 
 header {
-    background: linear-gradient(180deg, #37b0f7 0%, #1187dd 100%);
+    position: relative;
+    background: linear-gradient(180deg, var(--header-grad-1) 0%, var(--header-grad-2) 100%);
     border-radius: 16px 16px 0 0;
     padding: 16px 20px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(10, 37, 64, 0.18);
+    box-shadow: var(--shadow-lg);
 }
 
 header h1 {
     margin: 0;
-    color: #fff;
-    font-size: 1.6em;
-    letter-spacing: 0.3px;
+    color: var(--on-accent);
+    font-family: var(--font-display);
+    font-size: 1.7em;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+/* Editorial serif for section headings and identity handles */
+h2,
+h3,
+h4,
+.tweet-user,
+.peer-name,
+#feed-heading,
+.user-greeting #current-user {
+    font-family: var(--font-display);
+}
+
+/* Theme toggle lives in the header, overriding the global button look */
+.theme-toggle {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    line-height: 1;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.18);
+    box-shadow: none;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.08s ease;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    filter: none;
+    box-shadow: none;
+    transform: translateY(-50%); /* keep vertical centering (overrides global hover lift) */
+}
+
+.theme-toggle:active {
+    transform: translateY(-50%) scale(0.92);
 }
 
 .container {
-    background-color: white;
+    background-color: var(--surface);
     border-radius: 0 0 16px 16px;
-    box-shadow: 0 10px 30px rgba(10, 37, 64, 0.18);
+    box-shadow: var(--shadow-lg);
     padding: 22px;
 }
 
@@ -48,17 +249,17 @@ header h1 {
 }
 
 .tweet {
-    background: #fff;
-    border: 1px solid #eef2f5;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 14px;
     padding: 14px;
     margin-bottom: 12px;
-    box-shadow: 0 1px 3px rgba(10, 37, 64, 0.06);
+    box-shadow: var(--shadow-card);
     transition: box-shadow 0.2s ease;
 }
 
 .tweet:hover {
-    box-shadow: 0 4px 14px rgba(10, 37, 64, 0.10);
+    box-shadow: var(--shadow-card-hover);
 }
 
 .tweet-main {
@@ -84,7 +285,7 @@ header h1 {
 }
 
 .tweet-time {
-    color: #8295a6;
+    color: var(--text-muted);
     font-size: 0.85em;
     margin-left: auto;
 }
@@ -101,9 +302,9 @@ header h1 {
 }
 
 .delete-tweet-button {
-    background: rgba(224, 36, 94, 0.1);
-    color: #e0245e;
-    border: 1px solid rgba(224, 36, 94, 0.3);
+    background: var(--danger-soft-bg);
+    color: var(--danger);
+    border: 1px solid var(--danger-soft-border);
     border-radius: 6px;
     padding: 3px 10px;
     font-size: 0.8em;
@@ -112,7 +313,7 @@ header h1 {
 }
 
 .delete-tweet-button:hover {
-    background: rgba(224, 36, 94, 0.2);
+    background: var(--danger-soft-bg-hover);
     filter: none;
     box-shadow: none;
 }
@@ -127,9 +328,9 @@ header h1 {
 }
 
 .feed-more-button {
-    background: rgba(29, 161, 242, 0.12);
-    color: #1da1f2;
-    border: 1px solid rgba(29, 161, 242, 0.35);
+    background: var(--accent-soft-bg);
+    color: var(--accent);
+    border: 1px solid var(--accent-soft-border);
     border-radius: 999px;
     padding: 8px 18px;
     font-size: 0.9em;
@@ -138,7 +339,7 @@ header h1 {
 }
 
 .feed-more-button:hover {
-    background: rgba(29, 161, 242, 0.2);
+    background: var(--accent-soft-bg-hover);
     filter: none;
     box-shadow: none;
 }
@@ -156,17 +357,17 @@ header h1 {
 }
 
 .feed-peer-button {
-    background: rgba(121, 75, 196, 0.12);
-    color: #794bc4;
-    border-color: rgba(121, 75, 196, 0.35);
+    background: var(--spark-soft-bg);
+    color: var(--spark);
+    border-color: var(--spark-soft-border);
 }
 
 .feed-peer-button:hover {
-    background: rgba(121, 75, 196, 0.2);
+    background: var(--spark-soft-bg-hover);
 }
 
 .feed-end-note {
-    color: #8899a6;
+    color: var(--text-faint);
     font-size: 0.85em;
     margin: 6px 0;
 }
@@ -179,7 +380,7 @@ header h1 {
 
 /* ---- Identity / trust indicators ---- */
 .tweet-fingerprint {
-    color: #8899a6;
+    color: var(--text-faint);
     font-weight: 400;
     font-size: 0.85em;
     margin-left: 2px;
@@ -195,21 +396,21 @@ header h1 {
 }
 
 .trust-verified {
-    background: rgba(23, 191, 99, 0.12);
-    color: #17bf63;
-    border: 1px solid rgba(23, 191, 99, 0.35);
+    background: var(--trust-ok-bg);
+    color: var(--trust-ok);
+    border: 1px solid var(--trust-ok-border);
 }
 
 .trust-unverified {
-    background: rgba(136, 153, 166, 0.12);
-    color: #8899a6;
-    border: 1px solid rgba(136, 153, 166, 0.3);
+    background: var(--muted-soft-bg);
+    color: var(--text-faint);
+    border: 1px solid var(--muted-soft-border);
 }
 
 .trust-conflict {
-    background: rgba(224, 36, 94, 0.14);
-    color: #e0245e;
-    border: 1px solid rgba(224, 36, 94, 0.4);
+    background: var(--danger-soft-bg);
+    color: var(--danger);
+    border: 1px solid var(--danger-soft-border);
     font-weight: 600;
 }
 
@@ -222,9 +423,9 @@ header h1 {
 }
 
 #scan-qr-button {
-    background: rgba(29, 161, 242, 0.12);
-    color: #1da1f2;
-    border: 1px solid rgba(29, 161, 242, 0.35);
+    background: var(--accent-soft-bg);
+    color: var(--accent);
+    border: 1px solid var(--accent-soft-border);
 }
 
 .invite-actions {
@@ -275,9 +476,9 @@ header h1 {
 
 /* ---- ✨ Spark reaction ---- */
 .spark-button {
-    background: rgba(121, 75, 196, 0.10);
-    color: #794bc4;
-    border: 1px solid rgba(121, 75, 196, 0.30);
+    background: var(--spark-soft-bg);
+    color: var(--spark);
+    border: 1px solid var(--spark-soft-border);
     border-radius: 999px;
     padding: 3px 12px;
     font-size: 0.85em;
@@ -287,7 +488,7 @@ header h1 {
 }
 
 .spark-button:hover {
-    background: rgba(121, 75, 196, 0.2);
+    background: var(--spark-soft-bg-hover);
     filter: none;
     box-shadow: none;
 }
@@ -297,9 +498,9 @@ header h1 {
 }
 
 .spark-button.sparked {
-    background: rgba(232, 164, 0, 0.18);
-    color: #b07d00;
-    border-color: rgba(232, 164, 0, 0.5);
+    background: var(--spark-gold-bg);
+    color: var(--spark-gold);
+    border-color: var(--spark-gold-border);
     font-weight: 600;
 }
 
@@ -309,14 +510,14 @@ header h1 {
 }
 
 .spark-button.spark-readonly:hover {
-    background: rgba(121, 75, 196, 0.10);
+    background: var(--spark-soft-bg);
 }
 
 /* ---- Identity backup (import on login) ---- */
 .login-import {
     margin-top: 18px;
     padding-top: 14px;
-    border-top: 1px solid rgba(136, 153, 166, 0.25);
+    border-top: 1px solid var(--muted-divider);
 }
 
 .login-import input[type="file"] {
@@ -335,46 +536,56 @@ header h1 {
 textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid #cfd9de;
+    border: 1px solid var(--field-border);
     border-radius: 12px;
     resize: none;
     margin-bottom: 10px;
     font-family: inherit;
     font-size: 14px;
     box-sizing: border-box;
+    background: var(--field-bg);
+    color: var(--text);
 }
 
 textarea:focus,
 input[type="text"]:focus {
     outline: none;
-    border-color: #1da1f2;
-    box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.15);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+::placeholder {
+    color: var(--text-faint);
+    opacity: 1;
 }
 
 button {
-    background: linear-gradient(180deg, #34a8f5 0%, #1a8fe0 100%);
-    color: white;
+    background: linear-gradient(180deg, var(--btn-grad-1) 0%, var(--btn-grad-2) 100%);
+    color: var(--on-accent);
     border: none;
     border-radius: 30px;
     padding: 10px 20px;
     cursor: pointer;
     font-weight: bold;
-    box-shadow: 0 2px 6px rgba(26, 143, 224, 0.35);
-    transition: transform 0.08s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    box-shadow: var(--shadow-btn);
+    /* springy press/release */
+    transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 button:hover {
     filter: brightness(1.06);
-    box-shadow: 0 4px 12px rgba(26, 143, 224, 0.42);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-btn-hover);
 }
 
 button:active {
-    transform: translateY(1px);
+    transform: translateY(0) scale(0.96);
 }
 
 .danger-button {
-    background: linear-gradient(180deg, #f0436f 0%, #e0245e 100%);
-    box-shadow: 0 2px 6px rgba(224, 36, 94, 0.3);
+    background: linear-gradient(180deg, var(--danger-grad-1) 0%, var(--danger-grad-2) 100%);
+    box-shadow: var(--shadow-btn-danger);
 }
 
 .peer {
@@ -384,10 +595,10 @@ button:active {
     gap: 10px;
     padding: 12px;
     margin-bottom: 10px;
-    background-color: #fff;
-    border: 1px solid #eef2f5;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(10, 37, 64, 0.05);
+    box-shadow: var(--shadow-card);
     cursor: default;
 }
 
@@ -403,8 +614,8 @@ button:active {
 }
 
 .peer:hover {
-    background-color: #fbfdff;
-    box-shadow: 0 3px 10px rgba(10, 37, 64, 0.08);
+    background-color: var(--surface-hover);
+    box-shadow: var(--shadow-card-hover);
 }
 
 #qrcode,
@@ -414,7 +625,7 @@ button:active {
 }
 
 .profile-info {
-    background-color: #f7f9fa;
+    background-color: var(--surface-2);
     border-radius: 10px;
     padding: 15px;
     margin-bottom: 20px;
@@ -441,18 +652,37 @@ button:active {
 .tab-container {
     display: flex;
     margin-bottom: 15px;
-    border-bottom: 1px solid #e6ecf0;
+    border-bottom: 1px solid var(--border-2);
 }
 
 .tab {
+    position: relative;
     padding: 10px 15px;
     cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.18s ease;
+}
+
+.tab:hover {
+    color: var(--text);
 }
 
 .tab.active {
-    border-bottom: 2px solid #1da1f2;
-    color: #1da1f2;
+    color: var(--accent);
     font-weight: bold;
+}
+
+/* Animated underline that grows in when a tab becomes active */
+.tab.active::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+    transform-origin: center;
 }
 
 #connect-form {
@@ -460,7 +690,7 @@ button:active {
 }
 
 #status {
-    color: #657786;
+    color: var(--text-muted);
     margin: 10px 0;
 }
 
@@ -503,8 +733,8 @@ button:active {
 }
 
 .small-button {
-    background-color: #1da1f2;
-    color: white;
+    background-color: var(--accent);
+    color: var(--on-accent);
     border: none;
     border-radius: 4px;
     padding: 2px 8px;
@@ -531,7 +761,7 @@ button:active {
     align-items: center;
     margin: 5px 0;
     padding: 5px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border);
   }
 
 /* ===== Circles: layout + sidebar ===== */
@@ -544,7 +774,7 @@ button:active {
 #circles-sidebar {
     width: 180px;
     flex-shrink: 0;
-    border-right: 1px solid #e6ecf0;
+    border-right: 1px solid var(--border-2);
     padding-right: 12px;
 }
 
@@ -553,7 +783,7 @@ button:active {
     font-size: 0.8em;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #657786;
+    color: var(--text-muted);
 }
 
 .app-main {
@@ -572,18 +802,18 @@ button:active {
 }
 
 .circle-item:hover {
-    background-color: #f0f3f5;
+    background-color: var(--surface-3);
 }
 
 .circle-item.active {
-    background-color: #e8f5fd;
-    color: #1da1f2;
+    background-color: var(--accent-tint-bg);
+    color: var(--accent);
     font-weight: bold;
 }
 
 .circle-item-count {
-    background-color: #e1e8ed;
-    color: #657786;
+    background-color: var(--chip-bg);
+    color: var(--text-muted);
     border-radius: 10px;
     padding: 0 8px;
     font-size: 0.75em;
@@ -591,7 +821,7 @@ button:active {
 }
 
 .sidebar-empty {
-    color: #657786;
+    color: var(--text-muted);
     font-size: 0.9em;
 }
 
@@ -605,7 +835,7 @@ button:active {
     flex: 1;
     min-width: 0;
     padding: 6px 8px;
-    border: 1px solid #cfd9de;
+    border: 1px solid var(--field-border);
     border-radius: 8px;
 }
 
@@ -622,16 +852,17 @@ button:active {
 }
 
 .cast-target {
-    color: #657786;
+    color: var(--text-muted);
     font-size: 0.9em;
     font-style: italic;
 }
 
 .circle-add-row select {
     padding: 6px 8px;
-    border: 1px solid #cfd9de;
+    border: 1px solid var(--field-border);
     border-radius: 8px;
-    background-color: white;
+    background-color: var(--field-bg);
+    color: var(--text);
 }
 
 /* Push the image button + Cast button to the right, image on the left of Cast */
@@ -646,13 +877,13 @@ button:active {
 
 #feed-heading {
     font-weight: bold;
-    color: #14171a;
+    color: var(--text);
     margin-bottom: 12px;
 }
 
 .tweet-circle-badge {
-    background-color: #e8f5fd;
-    color: #1da1f2;
+    background-color: var(--accent-tint-bg);
+    color: var(--accent);
     border-radius: 10px;
     padding: 1px 8px;
     font-size: 0.72em;
@@ -666,18 +897,18 @@ button:active {
 
 #create-circle-form input {
     padding: 8px;
-    border: 1px solid #cfd9de;
+    border: 1px solid var(--field-border);
     border-radius: 8px;
     margin-right: 8px;
 }
 
 .hint {
-    color: #657786;
+    color: var(--text-muted);
     font-size: 0.85em;
 }
 
 .circle-card {
-    border: 1px solid #e6ecf0;
+    border: 1px solid var(--border-2);
     border-radius: 10px;
     padding: 12px 14px;
     margin-bottom: 12px;
@@ -711,6 +942,15 @@ button:active {
 /* Long peer IDs should wrap, never force the layout wider */
 .peer-id {
     overflow-wrap: anywhere;
+    font-family: var(--font-mono);
+}
+
+/* Peer IDs / fingerprints read as machine text */
+code,
+#peer-id,
+#profile-peerid,
+.tweet-fingerprint {
+    font-family: var(--font-mono);
 }
 
 .circle-add-row select {
@@ -719,7 +959,7 @@ button:active {
 
 /* ===== Link previews + links ===== */
 .tweet-link {
-    color: #1da1f2;
+    color: var(--accent);
     text-decoration: none;
     word-break: break-word;
 }
@@ -730,7 +970,7 @@ button:active {
 
 .link-preview {
     display: flex;
-    border: 1px solid #e1e8ed;
+    border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
     text-decoration: none;
@@ -740,7 +980,7 @@ button:active {
 }
 
 .link-preview:hover {
-    background-color: #f7f9fa;
+    background-color: var(--surface-2);
 }
 
 .link-preview-image {
@@ -776,7 +1016,7 @@ button:active {
 }
 
 .link-preview-url {
-    color: #657786;
+    color: var(--text-muted);
     font-size: 0.8em;
     white-space: nowrap;
     overflow: hidden;
@@ -821,26 +1061,35 @@ button:active {
 /* ===== Form inputs ===== */
 input[type="text"] {
     padding: 10px 12px;
-    border: 1px solid #cfd9de;
+    border: 1px solid var(--field-border);
     border-radius: 10px;
     font-family: inherit;
     font-size: 14px;
     box-sizing: border-box;
+    background: var(--field-bg);
+    color: var(--text);
 }
 
-/* ===== Avatars ===== */
+/* ===== Avatars — letterpress "spelling" tiles ===== */
 .avatar {
     width: 42px;
     height: 42px;
-    border-radius: 50%;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
-    font-weight: bold;
-    font-size: 17px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 21px;
+    line-height: 1;
     flex-shrink: 0;
-    box-shadow: 0 2px 5px rgba(10, 37, 64, 0.18);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    /* drop shadow + a carved/embossed inner bevel so each tile reads as set type */
+    box-shadow: var(--shadow-avatar),
+                inset 0 1px 0 rgba(255, 255, 255, 0.35),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
     user-select: none;
 }
 
@@ -853,28 +1102,28 @@ input[type="text"] {
     flex-wrap: wrap;
     margin-bottom: 16px;
     padding-bottom: 14px;
-    border-bottom: 1px solid #eef2f5;
+    border-bottom: 1px solid var(--border);
 }
 
 .user-greeting {
     margin: 0;
-    color: #3a5168;
+    color: var(--text-muted);
 }
 
 .user-greeting #current-user {
     font-weight: bold;
-    color: #14171a;
+    color: var(--text);
 }
 
 .status-pill {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #f0f3f5;
+    background: var(--surface-3);
     border-radius: 999px;
     padding: 5px 12px;
     font-size: 0.82em;
-    color: #5b6b7a;
+    color: var(--text-muted);
 }
 
 #status {
@@ -893,17 +1142,17 @@ input[type="text"] {
 /* ===== Compose box as a card ===== */
 #tweet-form {
     margin-bottom: 20px;
-    background: #fff;
-    border: 1px solid #e7eef3;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 16px;
     padding: 14px;
-    box-shadow: 0 1px 3px rgba(10, 37, 64, 0.05);
+    box-shadow: var(--shadow-card);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #tweet-form:focus-within {
-    border-color: #9fd4f7;
-    box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.12);
+    border-color: var(--accent-focus-border);
+    box-shadow: 0 0 0 3px var(--focus-ring-soft);
 }
 
 #tweet-form textarea {
@@ -972,6 +1221,13 @@ input[type="text"] {
         font-size: 1.35em;
     }
 
+    .theme-toggle {
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        font-size: 1em;
+    }
+
     .container {
         padding: 14px;
         border-radius: 0 0 12px 12px;
@@ -991,7 +1247,7 @@ input[type="text"] {
     #circles-sidebar {
         width: auto;
         border-right: none;
-        border-bottom: 1px solid #e6ecf0;
+        border-bottom: 1px solid var(--border-2);
         padding-right: 0;
         padding-bottom: 14px;
     }
@@ -1141,5 +1397,135 @@ input[type="text"] {
 
     .tweet-circle-badge {
         display: none;
+    }
+}
+
+/* =====================================================================
+   Smooth theme switching (skipped for reduced-motion users)
+   ===================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+    body,
+    header,
+    .container,
+    .tweet,
+    .peer,
+    #tweet-form,
+    textarea,
+    input[type="text"],
+    select,
+    .status-pill,
+    .profile-info,
+    .circle-card,
+    .circle-item-count,
+    .tab {
+        transition: background-color 0.25s ease, border-color 0.25s ease,
+                    color 0.25s ease, box-shadow 0.25s ease;
+    }
+}
+
+/* =====================================================================
+   Motion / "juice"  (all opt-out under prefers-reduced-motion)
+   ===================================================================== */
+
+/* Sparkle particles emitted by spawnSparkles() — fixed so cards can't clip them */
+.sparkle-particle {
+    position: fixed;
+    z-index: 1100;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    will-change: transform, opacity;
+    animation: sparkle-fly 0.6s ease-out forwards;
+}
+
+@keyframes sparkle-fly {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
+    }
+    25% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px)))
+                   scale(1.1) rotate(45deg);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+    /* A freshly arrived/cast spell materializes into the feed */
+    .tweet--new {
+        animation: tweet-materialize 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+    }
+
+    @keyframes tweet-materialize {
+        from {
+            opacity: 0;
+            transform: translateY(-8px) scale(0.97);
+        }
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    /* Hover-lift on message cards (needs transform added to the transition) */
+    .tweet {
+        transition: background-color 0.25s ease, border-color 0.25s ease,
+                    color 0.25s ease, box-shadow 0.25s ease, transform 0.18s ease;
+    }
+
+    .tweet:hover {
+        transform: translateY(-2px);
+    }
+
+    /* The active tab's underline grows in from the center */
+    .tab.active::after {
+        animation: tab-underline 0.25s ease both;
+    }
+
+    @keyframes tab-underline {
+        from {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+        to {
+            opacity: 1;
+            transform: scaleX(1);
+        }
+    }
+
+    /* Tab panels fade + rise when shown (re-runs on display:none -> block) */
+    #feed-container,
+    #peers-container,
+    #circles-container,
+    #profile-container {
+        animation: panel-enter 0.28s ease both;
+    }
+
+    @keyframes panel-enter {
+        from {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    /* Gentle "alive" ripple on a healthy connection */
+    #connection-quality.good {
+        animation: dot-pulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes dot-pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.5);
+        }
+        50% {
+            box-shadow: 0 0 0 5px rgba(46, 204, 113, 0);
+        }
     }
 }
