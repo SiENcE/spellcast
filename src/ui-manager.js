@@ -337,7 +337,7 @@ export class UIManager {
 	  uploadButton.style.backgroundColor = 'var(--accent)';
 	  uploadButton.style.color = 'var(--on-accent)';
 	  uploadButton.style.border = 'none';
-	  uploadButton.style.borderRadius = '50%';
+	  uploadButton.style.borderRadius = 'var(--radius-btn)'; // follow the active theme's button shape
 	  uploadButton.style.width = '36px';
 	  uploadButton.style.height = '36px';
 	  uploadButton.style.marginRight = '10px';

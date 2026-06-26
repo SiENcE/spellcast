@@ -34,7 +34,13 @@
 <body>
     <header>
         <h1>✨ SpellCast</h1>
-        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle light / dark theme" aria-pressed="false">🌙</button>
+        <select id="theme-picker" class="theme-picker" aria-label="Choose a theme">
+            <option value="hex">★ Hex</option>
+            <option value="clean">Clean · light</option>
+            <option value="clean-dark">Clean · dark</option>
+            <option value="brutalist">Neo-Brutalist</option>
+            <option value="terminal">Terminal</option>
+        </select>
     </header>
 
     <div id="intro-container" class="container" style="display: none;">
