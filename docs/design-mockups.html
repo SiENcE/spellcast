@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpellCast — Design Mockups</title>
+<style>
+/* =====================================================================
+   SpellCast design preview — mirrors the SHIPPING themes in
+   src/styles.css (token values + structural rules kept in sync).
+   Themes: Clean (light) · Clean (dark) · Hex (default) · Neo-Brutalist · Terminal.
+   Standalone mockup: inline styles/script are fine here.
+   ===================================================================== */
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0; padding: 0;
+    background: #15171c; color: #e8ecf2;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* ---- Switcher bar ---- */
+.switcher {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    padding: 12px 16px; background: #0e1014; border-bottom: 1px solid #2a2e38;
+}
+.switcher strong { margin-right: 8px; font-size: 0.95em; letter-spacing: 0.5px; }
+.switcher button {
+    background: #1d212b; color: #cdd5e0; border: 1px solid #333a47;
+    border-radius: 8px; padding: 8px 14px; font-size: 0.9em; cursor: pointer; font-weight: 600;
+}
+.switcher button.active { background: #2b6cff; border-color: #2b6cff; color: #fff; }
+.switcher .desc { flex: 1 1 100%; color: #8b93a3; font-size: 0.85em; margin-top: 4px; }
+
+/* ---- Stage ---- */
+.stage {
+    min-height: calc(100vh - 60px);
+    padding: 28px 16px 60px;
+    background: var(--bg);
+    transition: background 0.25s ease;
+}
+
+/* =====================================================================
+   Shared structure (driven by per-design custom properties)
+   ===================================================================== */
+.app { max-width: 880px; margin: 0 auto; font-family: var(--font); color: var(--ink); }
+
+.hdr {
+    background: var(--hdr-bg, var(--accent));
+    border: var(--hdr-border, none);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 18px 22px; text-align: center; box-shadow: var(--shadow); position: relative;
+}
+.hdr h1 {
+    margin: 0; font-family: var(--font-display); font-size: 1.8em;
+    font-weight: var(--title-weight, 700); color: var(--hdr-ink, var(--on-accent));
+    letter-spacing: var(--title-spacing, 0.3px);
+}
+.hdr-sub { margin-top: 4px; color: var(--hdr-ink, var(--on-accent)); opacity: 0.75; font-size: 0.85em; }
+
+.panelwrap {
+    background: var(--surface, var(--panel));
+    border-radius: 0 0 var(--radius) var(--radius);
+    box-shadow: var(--shadow); padding: 22px;
+}
+
+.body { display: flex; gap: 18px; align-items: flex-start; }
+
+.sidebar { width: 170px; flex-shrink: 0; border-right: 1px solid var(--border); padding-right: 14px; }
+.sidebar h3 {
+    margin: 0 0 12px; font-size: 0.75em; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--muted); font-family: var(--font-display);
+}
+.circle {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 10px; margin-bottom: 4px; border-radius: calc(var(--radius) * 0.5);
+    cursor: pointer; font-size: 0.92em;
+}
+.circle .count { background: var(--chip); color: var(--muted); border-radius: 10px; padding: 0 8px; font-size: 0.78em; }
+.circle.active { background: var(--accent-tint); color: var(--accent); font-weight: 700; }
+
+.main { flex: 1; min-width: 0; }
+
+.tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+.tab { padding: 10px 14px; cursor: pointer; color: var(--muted); position: relative; font-size: 0.95em; }
+.tab.active { color: var(--accent); font-weight: 700; }
+.tab.active::after {
+    content: ''; position: absolute; left: 10px; right: 10px; bottom: -1px;
+    height: 2px; background: var(--accent); border-radius: 2px;
+}
+
+.compose {
+    background: var(--panel); border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);           /* accent "anchor" edge, all themes */
+    border-radius: var(--radius); padding: 16px; margin-bottom: 22px;
+    box-shadow: var(--shadow-soft, var(--shadow));
+}
+.compose textarea {
+    width: 100%; border: none; background: transparent; resize: none;
+    font-family: inherit; font-size: 1em; color: var(--ink); min-height: 56px; outline: none;
+}
+.compose textarea::placeholder { color: var(--muted); }
+.compose-actions { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.cast-target { color: var(--muted); font-size: 0.85em; font-style: italic; margin-right: auto; }
+
+/* 📷 image button — present in every design, follows the theme */
+.img-btn {
+    width: 40px; height: 40px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--btn-bg, var(--accent)); color: var(--on-accent);
+    border: var(--btn-border, none); border-radius: var(--btn-radius, 8px);
+    box-shadow: var(--btn-shadow, none); cursor: pointer; font-size: 1.05em;
+}
+.btn {
+    background: var(--btn-bg, var(--accent)); color: var(--on-accent);
+    border: var(--btn-border, none); border-radius: var(--btn-radius, 8px);
+    padding: 10px 22px; font-weight: 700; cursor: pointer;
+    box-shadow: var(--btn-shadow, none); font-family: var(--font);
+}
+
+.spell {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px; margin-bottom: 18px;
+    box-shadow: var(--shadow-soft, var(--shadow)); position: relative;
+}
+/* Letter-tile avatars — beveled & per-identity coloured in every theme (as the app does) */
+.tile {
+    width: 44px; height: 44px; flex-shrink: 0; border-radius: var(--tile-radius, 8px);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 800; font-size: 21px; color: #fff;
+    background: var(--tile, #888);
+    border: var(--tile-border, 1px solid rgba(0,0,0,0.12));
+    box-shadow: var(--tile-shadow, inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2));
+    text-shadow: var(--tile-text-shadow, 0 1px 1px rgba(0,0,0,0.25));
+}
+.spell-body { flex: 1; min-width: 0; }
+.spell-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+.handle { font-weight: 700; font-family: var(--font-display); }
+.fp { color: var(--muted); font-weight: 400; font-size: 0.82em; font-family: var(--font-mono, monospace); }
+.time { color: var(--muted); font-size: 0.82em; margin-left: auto; }
+.badge { font-size: 0.7em; padding: 2px 8px; border-radius: var(--radius-pill, 999px); white-space: nowrap; }
+.badge.ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-bd); }
+.badge.warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-bd); font-weight: 700; }
+.spell-text { margin: 4px 0 0; line-height: 1.5; }
+.spell-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+.spark {
+    display: inline-flex; align-items: center; min-height: 34px;
+    background: var(--spark-bg); color: var(--spark); border: 1px solid var(--spark-bd);
+    border-radius: var(--radius-pill, 999px); padding: 6px 14px; font-size: 0.85em; cursor: pointer; font-family: var(--font);
+}
+.spark.gold { background: var(--gold-bg); color: var(--gold); border-color: var(--gold-bd); font-weight: 700; }
+
+/* =====================================================================
+   CLEAN (light) — flat, modern, business
+   ===================================================================== */
+[data-design="clean"] .stage { --bg: #f6f7f9; }
+[data-design="clean"] {
+    --font: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    --font-display: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-mono: 'SFMono-Regular', 'Cascadia Code', Consolas, monospace;
+    --panel: #ffffff; --surface: #ffffff; --ink: #16191d; --muted: #687385;
+    --accent: #2f6bed; --on-accent: #ffffff;
+    --hdr-bg: #ffffff; --hdr-ink: #16191d; --hdr-border: 1px solid #e7e9ee;
+    --border: #e7e9ee; --chip: #eef1f5; --accent-tint: #e9f0fe;
+    --radius: 12px; --tile-radius: 8px; --radius-pill: 999px;
+    --title-weight: 700; --title-spacing: -0.4px;
+    --shadow: 0 1px 3px rgba(16,24,40,0.08); --shadow-soft: 0 1px 2px rgba(16,24,40,0.06);
+    --spark-bg: #f1f4f8; --spark: #4a5566; --spark-bd: #e1e5ec;
+    --gold-bg: #fef3e2; --gold: #b76e00; --gold-bd: #f3d6a6;
+    --ok-bg: #e7f6ee; --ok: #0a7d44; --ok-bd: #b9e6cd;
+    --warn-bg: #fdeaec; --warn: #c5283d; --warn-bd: #f4c4ca;
+    --btn-bg: #2f6bed; --btn-radius: 8px; --btn-shadow: 0 1px 2px rgba(47,107,237,0.25);
+}
+[data-design="clean"] .spell { box-shadow: var(--shadow-soft); }
+
+/* =====================================================================
+   CLEAN (dark) — same language, slate dark
+   ===================================================================== */
+[data-design="clean-dark"] .stage { --bg: #0f1115; }
+[data-design="clean-dark"] {
+    --font: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    --font-display: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-mono: 'SFMono-Regular', 'Cascadia Code', Consolas, monospace;
+    --panel: #171a21; --surface: #171a21; --ink: #e7eaf0; --muted: #9aa4b4;
+    --accent: #5a96ff; --on-accent: #ffffff;
+    --hdr-bg: #171a21; --hdr-ink: #e7eaf0; --hdr-border: 1px solid #262b35;
+    --border: #262b35; --chip: #232834; --accent-tint: rgba(90,150,255,0.16);
+    --radius: 12px; --tile-radius: 8px; --radius-pill: 999px;
+    --title-weight: 700; --title-spacing: -0.4px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.50); --shadow-soft: 0 1px 2px rgba(0,0,0,0.40);
+    --spark-bg: rgba(170,180,196,0.12); --spark: #aab4c4; --spark-bd: rgba(170,180,196,0.30);
+    --gold-bg: rgba(240,178,82,0.18); --gold: #f0b252; --gold-bd: rgba(240,178,82,0.45);
+    --ok-bg: rgba(61,220,132,0.16); --ok: #3ddc84; --ok-bd: rgba(61,220,132,0.40);
+    --warn-bg: rgba(255,107,107,0.16); --warn: #ff6b6b; --warn-bd: rgba(255,107,107,0.40);
+    --btn-bg: #3b7bff; --btn-radius: 8px; --btn-shadow: 0 1px 2px rgba(0,0,0,0.40);
+}
+[data-design="clean-dark"] .spell { box-shadow: var(--shadow-soft); }
+
+/* =====================================================================
+   HEX (default) — acid red / black, skewed title, hard shadows
+   ===================================================================== */
+[data-design="hex"] .stage {
+    --bg: #e60012;
+    background-image:
+        repeating-linear-gradient(135deg, rgba(0,0,0,0.10) 0 22px, transparent 22px 44px),
+        radial-gradient(120% 90% at 50% 0%, #e60012 0%, #c00010 100%);
+}
+[data-design="hex"] {
+    --font: 'Helvetica Neue', Arial, sans-serif;
+    --font-display: 'Arial Black', Impact, 'Helvetica Neue', sans-serif;
+    --font-mono: 'Courier New', monospace;
+    --panel: #111111; --surface: #111111; --ink: #ffffff; --muted: #b5b5b5;
+    --accent: #e60012; --on-accent: #ffffff;
+    --hdr-bg: #0a0a0a; --hdr-ink: #ffffff; --hdr-border: none;
+    --border: #000000; --chip: #2a2a2a; --accent-tint: #e60012;
+    --radius: 0px; --tile-radius: 2px; --radius-pill: 0px;
+    --shadow: 10px 10px 0 #000; --shadow-soft: 6px 6px 0 #000;
+    --spark-bg: #1a1a1a; --spark: #ffd400; --spark-bd: #ffd400;
+    --gold-bg: #ffd400; --gold: #0a0a0a; --gold-bd: #ffd400;
+    --ok-bg: #0a0a0a; --ok: #ffd400; --ok-bd: #ffd400;
+    --warn-bg: #e60012; --warn: #fff; --warn-bd: #fff;
+    --btn-bg: #e60012; --btn-radius: 0; --btn-border: 2px solid #fff; --btn-shadow: 4px 4px 0 #000;
+}
+[data-design="hex"] .panelwrap { border: 3px solid #000; }
+[data-design="hex"] .hdr {
+    clip-path: polygon(0 0, 100% 0, 100% 82%, 50% 100%, 0 82%);
+    padding-bottom: 30px;
+}
+[data-design="hex"] .hdr h1 {
+    font-style: italic; text-transform: uppercase; letter-spacing: 1px;
+    transform: skewX(-6deg); text-shadow: 3px 3px 0 #e60012;
+}
+[data-design="hex"] .handle,
+[data-design="hex"] .tab,
+[data-design="hex"] .sidebar h3 { text-transform: uppercase; font-style: italic; }
+[data-design="hex"] .tab.active { background: #e60012; color: #fff; }
+[data-design="hex"] .tab.active::after { display: none; }
+[data-design="hex"] .circle.active { color: #fff; }            /* accent-tint == accent (red) */
+[data-design="hex"] .spell { border: 2px solid #fff; outline: 3px solid #000; outline-offset: -1px; }
+
+/* =====================================================================
+   NEO-BRUTALIST — flat colour, thick borders, hard offset shadows
+   ===================================================================== */
+[data-design="brutalist"] .stage { --bg: #f5f1e6; }
+[data-design="brutalist"] {
+    --font: 'Helvetica Neue', Arial, sans-serif;
+    --font-display: 'Helvetica Neue', 'Arial Black', sans-serif;
+    --font-mono: 'Courier New', monospace;
+    --panel: #ffffff; --surface: #fffdf5; --ink: #141414; --muted: #5a5a5a;
+    --accent: #ff5a36; --on-accent: #fff;
+    --hdr-bg: #ffd23f; --hdr-ink: #141414; --hdr-border: 3px solid #141414;
+    --border: #141414; --chip: #ffe08a; --accent-tint: #ffd23f;
+    --radius: 6px; --tile-radius: 6px; --radius-pill: 6px;
+    --title-weight: 900; --title-spacing: -0.5px;
+    --shadow: 7px 7px 0 #141414; --shadow-soft: 4px 4px 0 #141414;
+    --tile-shadow: 2px 2px 0 #141414;
+    --spark-bg: #c4f0ff; --spark: #0a6e8f; --spark-bd: #141414;
+    --gold-bg: #ffd23f; --gold: #141414; --gold-bd: #141414;
+    --ok-bg: #b8f5c9; --ok: #146c33; --ok-bd: #141414;
+    --warn-bg: #ffc2cf; --warn: #b00030; --warn-bd: #141414;
+    --btn-bg: #ff5a36; --btn-radius: 6px; --btn-border: 2px solid #141414; --btn-shadow: 4px 4px 0 #141414;
+}
+[data-design="brutalist"] .panelwrap { border: 3px solid #141414; border-top: none; }
+[data-design="brutalist"] .spell, [data-design="brutalist"] .compose { border-width: 2px; }
+[data-design="brutalist"] .sidebar h3, [data-design="brutalist"] .tab { text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* =====================================================================
+   TERMINAL — neon green on black, mono, scanlines, prompts
+   ===================================================================== */
+[data-design="terminal"] .stage {
+    --bg: #070a07;
+    background-image:
+        repeating-linear-gradient(rgba(0,255,156,0.05) 0 1px, transparent 1px 3px),
+        radial-gradient(120% 90% at 50% 0%, #070a07 0%, #050705 100%);
+}
+[data-design="terminal"] {
+    --font: 'Cascadia Code', 'SF Mono', Consolas, 'Courier New', monospace;
+    --font-display: 'Cascadia Code', Consolas, monospace;
+    --font-mono: 'Cascadia Code', Consolas, monospace;
+    --panel: #0c120c; --surface: #0a0f0a; --ink: #9dffce; --muted: #4f8f6c;
+    --accent: #00ff9c; --on-accent: #04140c;
+    --hdr-bg: #0a0f0a; --hdr-ink: #00ff9c; --hdr-border: 1px solid #1c3a2a;
+    --border: #1c3a2a; --chip: #11241a; --accent-tint: rgba(0,255,156,0.12);
+    --radius: 4px; --tile-radius: 4px; --radius-pill: 4px;
+    --shadow: 0 0 24px rgba(0,255,156,0.10); --shadow-soft: 0 0 0 1px #1c3a2a;
+    --tile-text-shadow: 0 0 8px rgba(0,255,156,0.7);
+    --spark-bg: rgba(56,232,255,0.12); --spark: #38e8ff; --spark-bd: rgba(56,232,255,0.4);
+    --gold-bg: rgba(0,255,156,0.16); --gold: #00ff9c; --gold-bd: rgba(0,255,156,0.5);
+    --ok-bg: rgba(0,255,156,0.14); --ok: #00ff9c; --ok-bd: rgba(0,255,156,0.4);
+    --warn-bg: rgba(255,107,107,0.16); --warn: #ff6b6b; --warn-bd: rgba(255,107,107,0.5);
+    --btn-bg: #00ff9c; --btn-radius: 4px; --btn-shadow: 0 0 14px rgba(0,255,156,0.4);
+}
+[data-design="terminal"] .hdr h1 { text-shadow: 0 0 12px rgba(0,255,156,0.6); }
+[data-design="terminal"] .handle::before { content: '@'; color: var(--muted); }
+[data-design="terminal"] .spell-text::before { content: '> '; color: var(--muted); }
+</style>
+</head>
+<body data-design="hex">
+
+<div class="switcher">
+    <strong>SpellCast designs:</strong>
+    <button data-d="clean">1 · Clean (light)</button>
+    <button data-d="clean-dark">2 · Clean (dark)</button>
+    <button data-d="hex" class="active">3 · Hex ★ default</button>
+    <button data-d="brutalist">4 · Neo-Brutalist</button>
+    <button data-d="terminal">5 · Terminal</button>
+    <span class="desc" id="desc"></span>
+</div>
+
+<div class="stage">
+    <div class="app">
+        <header class="hdr">
+            <h1>✨ SpellCast</h1>
+            <div class="hdr-sub">Cast spells, not tweets.</div>
+        </header>
+
+        <div class="panelwrap">
+            <div class="body">
+                <aside class="sidebar">
+                    <h3>Circles</h3>
+                    <div class="circle active">All Peers <span class="count">12</span></div>
+                    <div class="circle">Friends <span class="count">5</span></div>
+                    <div class="circle">Work <span class="count">3</span></div>
+                    <div class="circle">Family <span class="count">4</span></div>
+                </aside>
+
+                <main class="main">
+                    <nav class="tabs">
+                        <span class="tab active">Feed</span>
+                        <span class="tab">Connect</span>
+                        <span class="tab">Circles</span>
+                        <span class="tab">Profile</span>
+                    </nav>
+
+                    <div class="compose">
+                        <textarea placeholder="Cast your spell..."></textarea>
+                        <div class="compose-actions">
+                            <span class="cast-target">Casting to: All Peers</span>
+                            <button class="img-btn" title="Add image">📷</button>
+                            <button class="btn">Cast</button>
+                        </div>
+                    </div>
+
+                    <article class="spell">
+                        <div class="tile" style="--tile:#c79100">A</div>
+                        <div class="spell-body">
+                            <div class="spell-head">
+                                <span class="handle">Aria<span class="fp">#7f3a</span></span>
+                                <span class="badge ok">verified</span>
+                                <span class="time">2m</span>
+                            </div>
+                            <p class="spell-text">No servers, no middleman — just words travelling straight between us. This actually feels like the early web again.</p>
+                            <div class="spell-actions"><button class="spark gold">✨ 4</button></div>
+                        </div>
+                    </article>
+
+                    <article class="spell">
+                        <div class="tile" style="--tile:#794bc4">M</div>
+                        <div class="spell-body">
+                            <div class="spell-head">
+                                <span class="handle">Морфеус<span class="fp">#1b9c</span></span>
+                                <span class="badge ok">verified</span>
+                                <span class="time">14m</span>
+                            </div>
+                            <p class="spell-text">Just scanned a QR and we were connected in seconds. Mesh delivery means my note hops to your friends too. 🔗</p>
+                            <div class="spell-actions"><button class="spark">✨ 1</button></div>
+                        </div>
+                    </article>
+
+                    <article class="spell">
+                        <div class="tile" style="--tile:#2f9e6f">K</div>
+                        <div class="spell-body">
+                            <div class="spell-head">
+                                <span class="handle">kai<span class="fp">#0d44</span></span>
+                                <span class="badge warn">⚠ impersonator?</span>
+                                <span class="time">1h</span>
+                            </div>
+                            <p class="spell-text">Different key, same name — the badge flags it. Trust-on-first-use is doing its job.</p>
+                            <div class="spell-actions"><button class="spark">✨</button></div>
+                        </div>
+                    </article>
+                </main>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const DESCS = {
+    clean:        "Flat, modern, business-like. Neutral greys + a confident blue, Inter sans-serif, hairline borders, almost no shadow. Calm SaaS clarity.",
+    "clean-dark": "Clean, but dark — slate surfaces, brighter blue accent. The night version of the business look.",
+    hex:          "DEFAULT. Acid red & black, jagged header, skewed italic-caps title, hard black shadows, sharp corners. Loud and unmistakable.",
+    brutalist:    "Flat colour, thick black outlines, hard offset shadows, no blur. Trendy, playful, confidently “not AI-generated.”",
+    terminal:     "Neon green on black, monospaced, scanlines, @handles and > prompts. Hacker / decentralized-ethos look for a serverless P2P app."
+};
+const desc = document.getElementById('desc');
+function setDesign(d) {
+    document.body.dataset.design = d;
+    desc.textContent = DESCS[d];
+    document.querySelectorAll('.switcher button').forEach(b => b.classList.toggle('active', b.dataset.d === d));
+}
+document.querySelectorAll('.switcher button').forEach(b => b.addEventListener('click', () => setDesign(b.dataset.d)));
+setDesign('hex');
+</script>
+</body>
+</html>
